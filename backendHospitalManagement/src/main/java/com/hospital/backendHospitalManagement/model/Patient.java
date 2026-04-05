@@ -5,56 +5,46 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
-public class Patient{
+public class Patient extends Person {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
-    private String name;
     private String healthCondition;
-    @Column(unique = true)
-    private String email;
+    private String bloodGroup;
+    private float weightInKgs;
+    private float heightInCms;
+
 
     public Patient() {
     }
 
-    public Patient(String name, String healthCondition, String email) {
-        this.name = name;
-        this.healthCondition = healthCondition;
-        this.email = email;
-    }
-
-    public Long getId() {
-        return Id;
-    }
-
-    public void setId(Long Id) {
-        this.Id = Id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getHealthCondition() {
-        return healthCondition;
-    }
-
-    public void setHealthCondition(String healthCondition) {
+    public Patient(Long id, String name, String email, String password, String healthCondition) {
+        super(id, name, "patient", email, password);
         this.healthCondition = healthCondition;
     }
 
-    public String getEmail() {
-        return email;
+    public Patient(Long id, String name, String email, String password, String healthCondition, String bloodGroup) {
+        super(id, name, "patient", email, password);
+        this.healthCondition = healthCondition;
+        this.bloodGroup = bloodGroup;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public Patient(Long id, String name,String email, String password, String healthCondition, String bloodGroup, float weightInKgs) {
+        super(id, name, "patient", email, password);
+        this.healthCondition = healthCondition;
+        this.bloodGroup = bloodGroup;
+        this.weightInKgs = weightInKgs;
+    }
+
+    public Patient(Long id, String name,String email, String password, String healthCondition, String bloodGroup, float weightInKgs, float heightInCms) {
+        super(id, name, "patient", email, password);
+        this.healthCondition = healthCondition;
+        this.bloodGroup = bloodGroup;
+        this.weightInKgs = weightInKgs;
+        this.heightInCms = heightInCms;
     }
 }

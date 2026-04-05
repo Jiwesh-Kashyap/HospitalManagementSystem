@@ -23,14 +23,14 @@ public class DoctorController {
     }
 
 
-    @GetMapping(value = "/{doctorId}/appointments")
-    public List<Appointment> getAllAppointments(@PathVariable Long doctorId) {
+    @GetMapping(value = "/doctor/{doctorId}/appointments")
+    public List<Appointment> getAllAppointmentsForADoctor(@PathVariable Long doctorId) {
         List<Appointment> list = repository.findByDoctorId(doctorId);
 
         return list;
     }
 
-    @PostMapping(value = "/{doctorId}/appointments")
+    @PostMapping(value = "/doctor/{doctorId}/appointments")
     public List<Appointment> updateStatusOfAppointment(@PathVariable Long doctorId,
             @RequestParam("appointment_id") Long appointmentId) {
 
