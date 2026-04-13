@@ -1,7 +1,5 @@
 package com.hospital.backendHospitalManagement;
 
-import com.hospital.backendHospitalManagement.model.Patient;
-import com.hospital.backendHospitalManagement.model.PatientRepo;
 import javax.sql.DataSource;
 
 import com.hospital.backendHospitalManagement.model.Person;
@@ -11,12 +9,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import java.awt.*;
 
 @SpringBootApplication
 public class BackendHospitalManagementApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BackendHospitalManagementApplication.class, args);
+		var context = SpringApplication.run(BackendHospitalManagementApplication.class, args);
+		// Launch Swing UI
+		System.setProperty("java.awt.headless", "false");
+		if (!GraphicsEnvironment.isHeadless()) {
+			com.hospital.backendHospitalManagement.ui.PromethiusFrame frame = new com.hospital.backendHospitalManagement.ui.PromethiusFrame(context);
+			frame.launch();
+		}
 	}
 	@Bean
     CommandLineRunner initDatabase(PersonRepo personRepo, PasswordEncoder passwordEncoder, DataSource dataSource) {

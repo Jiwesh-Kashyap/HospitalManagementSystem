@@ -1,0 +1,248 @@
+:root {
+    --star-command-blue: #007BB1;
+    --cyan: #00E5FF;
+    --bg-white: #ffffff;
+    --text-dark: #222;
+    --accent-red: #cc0000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-white);
+    color: var(--text-dark);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Tier 1: Deep Green */
+.top-header {
+    background: var(--star-command-blue);
+    padding: 20px 0;
+    color: white;
+}
+
+.top-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--cyan);
+}
+
+.logo span {
+    color: var(--bg-white);
+}
+
+.search-bar {
+    flex: 1;
+    max-width: 450px;
+    margin: 0 40px;
+    display: flex;
+    background: #fff;
+    padding: 4px;
+    border-radius: 4px;
+    border: 2px solid var(--cyan);
+}
+
+.search-bar input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    outline: none;
+    font-size: 16px;
+}
+
+.search-bar button {
+    background: var(--star-command-blue);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-login {
+    background: var(--star-command-blue);
+    padding: 10px 25px;
+    border-radius: 4px;
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+/* Main Nav: Vibrant Turquoise */
+.main-nav {
+    background: #fff;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.main-nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+}
+
+.main-nav ul li {
+    margin: 0 20px;
+}
+
+.main-nav ul li a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.main-nav ul li a:hover {
+    color: var(--cyan);
+}
+
+/* Specialty Bar: Deep Green */
+.spec-nav {
+    background: var(--star-command-blue);
+    padding: 10px 0;
+}
+
+.spec-nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+}
+
+.spec-nav ul li {
+    margin: 0 15px;
+}
+
+.spec-nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* Hero Banner */
+.hero-banner {
+    background: linear-gradient(135deg, var(--star-command-blue) 0%, #004d80 100%);
+    padding: 80px 0;
+    color: white;
+}
+
+.banner-content h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.banner-content h1 span {
+    color: var(--cyan);
+}
+
+.banner-content p {
+    font-size: 20px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.btn-buy {
+    background: var(--turquoise);
+    color: var(--star-command-blue);
+    padding: 15px 40px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Quick Actions Grid */
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 50px 0;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    padding: 25px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-bottom: 5px solid #eee;
+    cursor: pointer;
+}
+
+.action-card .icon {
+    font-size: 40px;
+    margin-right: 20px;
+}
+
+.color-blue { border-color: var(--star-command-blue); }
+.color-turquoise { border-color: var(--cyan); }
+.color-green { border-color: var(--star-command-blue); }
+.color-red { border-color: var(--accent-red); }
+
+/* Conditions Grid */
+.conditions {
+    padding: 40px 0 80px;
+}
+
+.conditions h2 {
+    font-size: 32px;
+    color: var(--star-command-blue);
+    margin-bottom: 40px;
+}
+
+.grid-5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+
+.cond-card {
+    background: #fff;
+    border: 1px solid #efefef;
+    padding: 30px 10px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cond-card:hover {
+    background: #f0ffff;
+}
+
+.cond-card .icon {
+    font-size: 44px;
+    margin-bottom: 15px;
+}
+
+.cond-card span {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--star-command-blue);
+}
+
+footer {
+    background: var(--text-dark);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+}
