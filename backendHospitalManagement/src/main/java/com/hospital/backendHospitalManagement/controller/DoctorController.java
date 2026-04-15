@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.hospital.backendHospitalManagement.model.Appointment;
 import com.hospital.backendHospitalManagement.model.AppointmentRepo;
@@ -33,9 +34,9 @@ public class DoctorController {
             @RequestParam("appointment_id") Long appointmentId) {
 
         Appointment appointment = repository.findById(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Appointment not found!!"));
+                .orElseThrow(() -> new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Appointment not found!"));
 
-        appointment.setStatus(true);
+        appointment.setStatus("Completed");
         repository.save(appointment);
 
         return repository.findByDoctorId(doctorId);

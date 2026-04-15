@@ -21,7 +21,8 @@ public class Appointment {
     private Long doctorId;
     private Long patientId;
     private String typeOfAppointment;
-    private boolean status;
+    private String status;
+    private String notes;
 
     public Appointment() {
     }
@@ -31,7 +32,8 @@ public class Appointment {
         this.doctorId = doctorId;
         this.patientId = patientId;
         this.typeOfAppointment = type;
-        status = false;
+        this.status = "Pending";
+        this.notes = "";
     }
 
 }

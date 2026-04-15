@@ -1,14 +1,26 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
+import com.hospital.backendHospitalManagement.model.*;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.Optional;
 
 public class DoctorDashboard extends JPanel {
     private final PromethiusFrame frame;
+    private final ApplicationContext context;
+    private DefaultTableModel appointmentTableModel;
+    private JTable appointmentTable;
+    private List<Appointment> loadedAppointments;
 
     public DoctorDashboard(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
+        this.context = context;
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.BEIGE);
 
@@ -82,21 +94,19 @@ public class DoctorDashboard extends JPanel {
         dashboardContent.setOpaque(false);
 
         // Section 1: Upcoming Appointments
-        dashboardContent.add(createDataTableSection("Today's Upcoming Appointments", new String[]{"Time", "Patient Name", "Reason", "Status"}, new Object[][]{
-            {"02:00 PM", "Sandra Bullock", "Emergency Follow-up", "Arrived"},
-            {"03:30 PM", "Tom Cruise", "Orthopedic Review", "Confirmed"},
-            {"04:15 PM", "Brad Pitt", "Routine Checkup", "Waiting"}
-        }));
+        String[] headers = {"Appt ID", "Patient Name", "Reason", "Status"};
+        Object[][] data = loadAppointmentsData();
+        appointmentTableModel = new DefaultTableModel(data, headers) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JPanel appointmentsSection = createDataTableSection("Assigned Appointments (Double click to manage)", appointmentTableModel);
+        dashboardContent.add(appointmentsSection);
 
         dashboardContent.add(Box.createVerticalStrut(30));
-
-        // Section 2: Recent Patient Activity (Past Appointments)
-        dashboardContent.add(createDataTableSection("Recent Patient Activity (Past Appointments)", new String[]{"Date", "Patient Name", "Diagnosis", "Notes"}, new Object[][]{
-            {"Apr 14, 2026", "John Doe", "Hypertension", "Prescribed Amlodipine"},
-            {"Apr 14, 2026", "Jane Smith", "Post-Op Recovery", "Stable, continue rehab"},
-            {"Apr 13, 2026", "Michael Brown", "Type 2 Diabetes", "HbA1c normal"},
-            {"Apr 13, 2026", "Emily Davis", "Seasonal Allergies", "Prescribed Cetirizine"}
-        }));
 
         JScrollPane scrollPane = new JScrollPane(dashboardContent);
         scrollPane.setBorder(null);
@@ -108,10 +118,10 @@ public class DoctorDashboard extends JPanel {
         add(content, BorderLayout.CENTER);
     }
 
-    private JPanel createDataTableSection(String title, String[] headers, Object[][] data) {
+    private JPanel createDataTableSection(String title, DefaultTableModel model) {
         JPanel section = new JPanel(new BorderLayout());
         section.setOpaque(false);
-        section.setMaximumSize(new Dimension(1400, 300));
+        section.setMaximumSize(new Dimension(1400, 400));
         
         JLabel lbl = new JLabel(title);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 22));
@@ -119,20 +129,133 @@ public class DoctorDashboard extends JPanel {
         lbl.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         section.add(lbl, BorderLayout.NORTH);
 
-        JTable table = new JTable(data, headers);
-        table.setFont(PromethiusFrame.MAIN_FONT);
-        table.setRowHeight(40);
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
-        table.setShowGrid(true);
-        table.setGridColor(new Color(230, 230, 230));
-        table.setAutoCreateRowSorter(true);
+        appointmentTable = new JTable(model);
+        appointmentTable.setFont(PromethiusFrame.MAIN_FONT);
+        appointmentTable.setRowHeight(40);
+        appointmentTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
+        appointmentTable.setShowGrid(true);
+        appointmentTable.setGridColor(new Color(230, 230, 230));
+        appointmentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // Add double click listener
+        appointmentTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && appointmentTable.getSelectedRow() != -1) {
+                    manageSelectedAppointment();
+                }
+            }
+        });
         
-        JScrollPane scroll = new JScrollPane(table);
+        JScrollPane scroll = new JScrollPane(appointmentTable);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        scroll.setPreferredSize(new Dimension(800, 200));
+        scroll.setPreferredSize(new Dimension(800, 300));
         section.add(scroll, BorderLayout.CENTER);
 
         return section;
+    }
+
+    private void manageSelectedAppointment() {
+        int selectedRow = appointmentTable.getSelectedRow();
+        if (selectedRow < 0 || loadedAppointments == null || selectedRow >= loadedAppointments.size()) return;
+
+        Appointment appt = loadedAppointments.get(selectedRow);
+        
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Manage Appointment", true);
+        dialog.setSize(400, 400);
+        dialog.setLocationRelativeTo(this);
+        
+        JPanel p = new JPanel(new BorderLayout(10, 10));
+        p.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel form = new JPanel(new GridLayout(4, 1, 5, 5));
+        form.add(new JLabel("Appointment ID: " + appt.getAppointmentId()));
+        form.add(new JLabel("Type: " + appt.getTypeOfAppointment()));
+        
+        form.add(new JLabel("Status:"));
+        JComboBox<String> statusDropdown = new JComboBox<>(new String[]{"Pending", "Confirmed", "Completed", "Cancelled"});
+        statusDropdown.setSelectedItem(appt.getStatus() != null ? appt.getStatus() : "Pending");
+        form.add(statusDropdown);
+
+        p.add(form, BorderLayout.NORTH);
+
+        JPanel notesPanel = new JPanel(new BorderLayout(5, 5));
+        notesPanel.add(new JLabel("Doctor Notes:"), BorderLayout.NORTH);
+        JTextArea notesArea = new JTextArea(appt.getNotes() != null ? appt.getNotes() : "");
+        notesArea.setLineWrap(true);
+        notesArea.setWrapStyleWord(true);
+        notesArea.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        notesPanel.add(new JScrollPane(notesArea), BorderLayout.CENTER);
+        
+        p.add(notesPanel, BorderLayout.CENTER);
+
+        JButton saveBtn = new JButton("Save Updates");
+        saveBtn.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
+        saveBtn.setForeground(Color.WHITE);
+        saveBtn.setFocusPainted(false);
+        saveBtn.addActionListener(e -> {
+            try {
+                appt.setStatus((String) statusDropdown.getSelectedItem());
+                appt.setNotes(notesArea.getText());
+                context.getBean(AppointmentRepo.class).save(appt);
+                JOptionPane.showMessageDialog(dialog, "Appointment updated!");
+                dialog.dispose();
+                refreshData(context);
+            } catch(Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(dialog, "Error saving: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        p.add(saveBtn, BorderLayout.SOUTH);
+        dialog.add(p);
+        dialog.setVisible(true);
+    }
+
+    public void refreshData(ApplicationContext context) {
+        if (appointmentTableModel != null) {
+            Object[][] data = loadAppointmentsData();
+            appointmentTableModel.setDataVector(data, new String[]{"Appt ID", "Patient Name", "Reason", "Status"});
+        }
+    }
+
+    private Object[][] loadAppointmentsData() {
+        try {
+            PersonRepo pRepo = context.getBean(PersonRepo.class);
+            AppointmentRepo appRepo = context.getBean(AppointmentRepo.class);
+
+            String email = frame.getCurrentUserEmail();
+            Long doctorId = 1L; // fallback
+            if (email != null) {
+                Optional<Person> docOpt = pRepo.findByEmail(email);
+                if (docOpt.isPresent()) {
+                    doctorId = docOpt.get().getId();
+                }
+            }
+
+            loadedAppointments = appRepo.findByDoctorId(doctorId);
+            if (loadedAppointments == null || loadedAppointments.isEmpty()) {
+                return new Object[][]{{"-", "No appointments assigned", "-", "-"}};
+            }
+
+            Object[][] data = new Object[loadedAppointments.size()][4];
+            for (int i = 0; i < loadedAppointments.size(); i++) {
+                Appointment app = loadedAppointments.get(i);
+                data[i][0] = String.valueOf(app.getAppointmentId());
+                
+                String pName = "Patient #" + app.getPatientId();
+                if (app.getPatientId() != null) {
+                    Optional<Person> pOpt = pRepo.findById(app.getPatientId());
+                    if (pOpt.isPresent()) pName = pOpt.get().getName();
+                }
+                data[i][1] = pName;
+                data[i][2] = app.getTypeOfAppointment();
+                data[i][3] = app.getStatus() != null ? app.getStatus() : "Pending";
+            }
+            return data;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Object[][]{{"Error loading data", "-", "-", "-"}};
+        }
     }
 
     private JLabel createSidebarHeader(String text) {

@@ -88,6 +88,11 @@ public class PromethiusFrame extends JFrame {
     }
 
     public void showPage(String pageName) {
+        for (Component comp : mainPanel.getComponents()) {
+            if ("DOCTOR_DASHBOARD".equals(pageName) && comp instanceof DoctorDashboard) {
+                ((DoctorDashboard) comp).refreshData(context);
+            }
+        }
         cardLayout.show(mainPanel, pageName);
     }
 
