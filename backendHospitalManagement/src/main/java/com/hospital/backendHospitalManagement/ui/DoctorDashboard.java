@@ -17,6 +17,10 @@ public class DoctorDashboard extends JPanel {
     private DefaultTableModel appointmentTableModel;
     private JTable appointmentTable;
     private List<Appointment> loadedAppointments;
+    private JLabel titleLbl;
+    private JLabel apptsStatLbl;
+    private JLabel pendingStatLbl;
+    private JLabel criticalStatLbl;
 
     public DoctorDashboard(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
@@ -43,7 +47,7 @@ public class DoctorDashboard extends JPanel {
         sidebar.add(Box.createVerticalGlue());
         JButton logout = createSidebarButton("Logout");
         logout.setForeground(new Color(255, 100, 100));
-        logout.addActionListener(e -> frame.showPage("LANDING"));
+        logout.addActionListener(e -> frame.logout());
         sidebar.add(logout);
         add(sidebar, BorderLayout.WEST);
 
@@ -65,21 +69,25 @@ public class DoctorDashboard extends JPanel {
         titleBox.add(homeBtn);
 
         String docName = frame.getCurrentUserName() != null ? frame.getCurrentUserName() : "Physician";
-        JLabel title = new JLabel("Welcome, Dr. " + docName);
-        title.setFont(new Font("SansSerif", Font.BOLD, 30));
-        title.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
-        titleBox.add(title);
+        titleLbl = new JLabel("Welcome, " + docName);
+        titleLbl.setFont(new Font("SansSerif", Font.BOLD, 30));
+        titleLbl.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        titleBox.add(titleLbl);
         
         headerPanel.add(titleBox, BorderLayout.WEST);
         content.add(headerPanel, BorderLayout.NORTH);
 
         // Quick Stats
+        apptsStatLbl = new JLabel("-");
+        pendingStatLbl = new JLabel("-");
+        criticalStatLbl = new JLabel("-");
+
         JPanel stats = new JPanel(new GridLayout(1, 3, 20, 0));
         stats.setOpaque(false);
         stats.setPreferredSize(new Dimension(800, 80));
-        stats.add(createCompactStatCard("Today's Appts", "12"));
-        stats.add(createCompactStatCard("Pending Rounds", "4"));
-        stats.add(createCompactStatCard("Critical Alerts", "1"));
+        stats.add(createCompactStatCard("Today's Appts", apptsStatLbl));
+        stats.add(createCompactStatCard("Pending Rounds", pendingStatLbl));
+        stats.add(createCompactStatCard("Critical Alerts", criticalStatLbl));
         
         JPanel topArea = new JPanel(new BorderLayout());
         topArea.setOpaque(false);
@@ -102,6 +110,8 @@ public class DoctorDashboard extends JPanel {
                 return false;
             }
         };
+
+        dashboardContent.add(Box.createVerticalStrut(40)); // Added extra vertical space manually requested by user
 
         JPanel appointmentsSection = createDataTableSection("Assigned Appointments (Double click to manage)", appointmentTableModel);
         dashboardContent.add(appointmentsSection);
@@ -194,7 +204,34 @@ public class DoctorDashboard extends JPanel {
         saveBtn.setFocusPainted(false);
         saveBtn.addActionListener(e -> {
             try {
-                appt.setStatus((String) statusDropdown.getSelectedItem());
+                String oldStatus = appt.getStatus();
+                String newStatus = (String) statusDropdown.getSelectedItem();
+                
+                if ("Completed".equalsIgnoreCase(newStatus) && !"Completed".equalsIgnoreCase(oldStatus)) {
+                    JPanel billPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+                    billPanel.add(new JLabel("Service Delivered:"));
+                    String type = appt.getTypeOfAppointment();
+                    JTextField serviceField = new JTextField(type != null ? type : "Consultation");
+                    billPanel.add(serviceField);
+                    billPanel.add(new JLabel("Amount (\u20B9):"));
+                    JTextField amountField = new JTextField("699.00");
+                    billPanel.add(amountField);
+                    
+                    int result = JOptionPane.showConfirmDialog(dialog, billPanel, "Generate Bill", JOptionPane.OK_CANCEL_OPTION);
+                    if (result == JOptionPane.OK_OPTION) {
+                        try {
+                            Double val = Double.parseDouble(amountField.getText());
+                            Bill b = new Bill(appt.getPatientId(), appt.getDoctorId(), appt.getAppointmentId(), 
+                                                "INV-" + java.time.LocalDate.now().getYear() + "-" + appt.getAppointmentId(), 
+                                                serviceField.getText(), val, java.time.LocalDate.now().toString());
+                            context.getBean(BillRepo.class).save(b);
+                        } catch(Exception parseEx) {
+                            JOptionPane.showMessageDialog(dialog, "Invalid amount entered. Bill generation skipped.", "Warning", JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                }
+
+                appt.setStatus(newStatus);
                 appt.setNotes(notesArea.getText());
                 context.getBean(AppointmentRepo.class).save(appt);
                 JOptionPane.showMessageDialog(dialog, "Appointment updated!");
@@ -215,6 +252,23 @@ public class DoctorDashboard extends JPanel {
         if (appointmentTableModel != null) {
             Object[][] data = loadAppointmentsData();
             appointmentTableModel.setDataVector(data, new String[]{"Appt ID", "Patient Name", "Reason", "Status"});
+        }
+        if (titleLbl != null) {
+            String docName = frame.getCurrentUserName() != null ? frame.getCurrentUserName() : "Physician";
+            String prefix = docName.startsWith("Dr.") ? "" : "Dr. ";
+            titleLbl.setText("Welcome, " + prefix + docName);
+        }
+        if (apptsStatLbl != null && loadedAppointments != null) {
+            int pendingCount = 0;
+            int criticalCount = 0;
+            for (Appointment a : loadedAppointments) {
+                String s = (a.getStatus() != null) ? a.getStatus() : "";
+                if (s.equalsIgnoreCase("Pending") || s.equalsIgnoreCase("Waiting")) pendingCount++;
+                if (s.equalsIgnoreCase("Critical")) criticalCount++;
+            }
+            apptsStatLbl.setText(String.valueOf(loadedAppointments.size()));
+            pendingStatLbl.setText(String.valueOf(pendingCount));
+            criticalStatLbl.setText(String.valueOf(criticalCount));
         }
     }
 
@@ -286,7 +340,7 @@ public class DoctorDashboard extends JPanel {
         return btn;
     }
 
-    private JPanel createCompactStatCard(String title, String val) {
+    private JPanel createCompactStatCard(String title, JLabel v) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -299,7 +353,6 @@ public class DoctorDashboard extends JPanel {
         t.setForeground(Color.GRAY);
         card.add(t, BorderLayout.NORTH);
 
-        JLabel v = new JLabel(val);
         v.setFont(new Font("SansSerif", Font.BOLD, 22));
         v.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
         v.setHorizontalAlignment(SwingConstants.CENTER);

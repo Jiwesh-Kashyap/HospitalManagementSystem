@@ -1,6 +1,8 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
+import com.hospital.backendHospitalManagement.model.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -8,10 +10,12 @@ import java.awt.event.MouseEvent;
 
 public class DoctorListingPage extends JPanel {
     private final PromethiusFrame frame;
+    private final ApplicationContext context;
     private final JPanel doctorListPanel;
 
     public DoctorListingPage(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
+        this.context = context;
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 
@@ -102,14 +106,34 @@ public class DoctorListingPage extends JPanel {
     }
 
     private void populateDoctors() {
-        doctorListPanel.add(createDoctorListItem("Dr. Chaithra H", "Internal Medicine Specialist", "6 YEARS • MBBS, MD", "Bangalore", "₹699"));
-        doctorListPanel.add(Box.createVerticalStrut(20));
-        doctorListPanel.add(createDoctorListItem("Dr. Summaiya Banu", "General Practitioner", "8 YEARS • MBBS", "Hyderabad", "₹660"));
-        doctorListPanel.add(Box.createVerticalStrut(20));
-        doctorListPanel.add(createDoctorListItem("Dr. Syed Ismail Ali", "General Physician", "12 YEARS • MBBS, MD", "Mumbai", "₹900"));
+        doctorListPanel.removeAll();
+        try {
+            DoctorRepo doctorRepo = context.getBean(DoctorRepo.class);
+            Iterable<Doctor> allDoctors = doctorRepo.findAll();
+            
+            int count = 0;
+            for (Doctor doc : allDoctors) {
+                // Determine a pseudo-random price and exp for UI flair
+                String price = "₹" + ((doc.getId() % 5) * 100 + 400); 
+                String exp = (doc.getId() + 3) + " YEARS • MBBS";
+                
+                doctorListPanel.add(createDoctorListItem(doc.getId(), doc.getName(), doc.getSpecialisation(), exp, "Hospital Visit", price));
+                doctorListPanel.add(Box.createVerticalStrut(20));
+                count++;
+            }
+            
+            if (count == 0) {
+                doctorListPanel.add(new JLabel("No specialists available currently."));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            doctorListPanel.add(new JLabel("Error verifying doctor network."));
+        }
+        doctorListPanel.revalidate();
+        doctorListPanel.repaint();
     }
 
-    private JPanel createDoctorListItem(String name, String spec, String exp, String loc, String price) {
+    private JPanel createDoctorListItem(Long docId, String name, String spec, String exp, String loc, String price) {
         JPanel card = new JPanel(new BorderLayout(25, 0));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -172,7 +196,10 @@ public class DoctorListingPage extends JPanel {
         book.setFont(new Font("SansSerif", Font.BOLD, 16));
         book.setAlignmentX(Component.RIGHT_ALIGNMENT);
         book.setPreferredSize(new Dimension(160, 40));
-        book.addActionListener(ev -> frame.showPage("PATIENT_DOCTOR_PROFILE"));
+        book.addActionListener(ev -> {
+            frame.setCurrentSelectedDoctorId(docId);
+            frame.showPage("PATIENT_DOCTOR_PROFILE");
+        });
 
         action.add(Box.createVerticalGlue());
         action.add(p);

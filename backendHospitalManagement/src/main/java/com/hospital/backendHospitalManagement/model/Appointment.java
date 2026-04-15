@@ -21,6 +21,7 @@ public class Appointment {
     private Long doctorId;
     private Long patientId;
     private String typeOfAppointment;
+    @Getter
     private String status;
     private String notes;
 

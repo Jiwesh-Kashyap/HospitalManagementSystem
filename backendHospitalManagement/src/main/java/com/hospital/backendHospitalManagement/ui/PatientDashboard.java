@@ -1,12 +1,21 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
+import com.hospital.backendHospitalManagement.model.*;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 
 public class PatientDashboard extends JPanel {
     private final PromethiusFrame frame;
+    private DefaultTableModel appointmentTableModel;
+    private DefaultTableModel billingTableModel;
+    private JLabel apptsLbl;
+    private JLabel reportsLbl;
+    private JLabel healthLbl;
+    private JLabel vitalsLbl;
 
     public PatientDashboard(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
@@ -40,7 +49,7 @@ public class PatientDashboard extends JPanel {
         sidebar.add(Box.createVerticalGlue());
         JButton logout = createSidebarButton("Logout");
         logout.setForeground(new Color(255, 100, 100));
-        logout.addActionListener(e -> frame.showPage("LANDING"));
+        logout.addActionListener(e -> frame.logout());
         sidebar.add(logout);
         add(sidebar, BorderLayout.WEST);
 
@@ -93,23 +102,30 @@ public class PatientDashboard extends JPanel {
         dashboardContent.setOpaque(false);
 
         // 1. Horizontal Stats Row
+        apptsLbl = new JLabel("-");
+        reportsLbl = new JLabel("-");
+        healthLbl = new JLabel("-");
+        vitalsLbl = new JLabel("-");
+
         JPanel statRow = new JPanel(new GridLayout(1, 4, 15, 0));
         statRow.setOpaque(false);
         statRow.setMaximumSize(new Dimension(1400, 100));
-        statRow.add(createCompactStatCard("Appts", "2"));
-        statRow.add(createCompactStatCard("Reports", "5"));
-        statRow.add(createCompactStatCard("Health", "85%"));
-        statRow.add(createCompactStatCard("Vitals", "120/80"));
+        statRow.add(createCompactStatCard("Appts", apptsLbl));
+        statRow.add(createCompactStatCard("Reports", reportsLbl));
+        statRow.add(createCompactStatCard("Health", healthLbl));
+        statRow.add(createCompactStatCard("Vitals", vitalsLbl));
         
         dashboardContent.add(Box.createVerticalStrut(20));
         dashboardContent.add(statRow);
         dashboardContent.add(Box.createVerticalStrut(30));
 
         // 2. Dashboard Sections (Quick Previews)
-        dashboardContent.add(createDataSection("Upcoming Appointments", new String[]{"Date", "Doctor", "Reason"}, new Object[][]{
-            {"Apr 15, 10:00 AM", "Dr. Chaithra H", "Internal Medicine"},
-            {"Apr 22, 02:30 PM", "Dr. Summaiya B", "General Checkup"}
-        }));
+        String[] apptHeaders = {"Date", "Doctor", "Reason", "Status"};
+        Object[][] apptData = loadAppointments(context);
+        this.appointmentTableModel = new DefaultTableModel(apptData, apptHeaders);
+        
+        JPanel appointmentsSection = createDataSectionFromModel("Upcoming Appointments", this.appointmentTableModel);
+        dashboardContent.add(appointmentsSection);
         
         dashboardContent.add(Box.createVerticalStrut(25));
         dashboardContent.add(createDataSection("Recent Medical Records", new String[]{"Document Name", "Date", "Category"}, new Object[][]{
@@ -118,10 +134,11 @@ public class PatientDashboard extends JPanel {
         }));
 
         dashboardContent.add(Box.createVerticalStrut(25));
-        dashboardContent.add(createDataSection("Recent Billing", new String[]{"Invoice #", "Service", "Amount"}, new Object[][]{
-            {"INV-2026-001", "Consultation Fee", "₹699"},
-            {"INV-2026-002", "Pharmacy - Meds", "₹1,240"}
-        }));
+        
+        String[] billHeaders = {"Invoice #", "Service", "Amount"};
+        Object[][] billData = loadBills(context);
+        this.billingTableModel = new DefaultTableModel(billData, billHeaders);
+        dashboardContent.add(createDataSectionFromModel("Recent Billing", this.billingTableModel));
 
         JScrollPane scrollPane = new JScrollPane(dashboardContent);
         scrollPane.setBorder(null);
@@ -131,6 +148,85 @@ public class PatientDashboard extends JPanel {
         mainArea.add(scrollPane, BorderLayout.CENTER);
 
         add(mainArea, BorderLayout.CENTER);
+    }
+
+    private Object[][] loadAppointments(ApplicationContext context) {
+        try {
+            AppointmentRepo appointmentRepo = context.getBean(AppointmentRepo.class);
+            
+            // Get appointments for the currently logged in Patient
+            Long patientId = frame.getLoggedInUserId();
+            // Default to 1L if null (for testing/bypassing login)
+            if (patientId == null) {
+                patientId = 1L;
+            }
+            List<Appointment> appointments = appointmentRepo.findByPatientId(patientId);
+            
+            if (appointments == null || appointments.isEmpty()) {
+                return new Object[][]{{"No appointments found", "-", "-", "-"}};
+            }
+            
+            Object[][] data = new Object[appointments.size()][4];
+            for (int i = 0; i < appointments.size(); i++) {
+                Appointment appt = appointments.get(i);
+                data[i][0] = "Appt #" + appt.getAppointmentId();
+                data[i][1] = "Doc ID: " + appt.getDoctorId(); 
+                data[i][2] = appt.getTypeOfAppointment();
+                data[i][3] = appt.getStatus();
+            }
+            return data;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Object[][]{{"Error loading appointments", "-", "-", "-"}};
+        }
+    }
+
+    private Object[][] loadBills(ApplicationContext context) {
+        try {
+            BillRepo billRepo = context.getBean(BillRepo.class);
+            Long patientId = frame.getLoggedInUserId();
+            if (patientId == null) patientId = 1L;
+            
+            List<Bill> bills = billRepo.findByPatientId(patientId);
+            if (bills == null || bills.isEmpty()) {
+                return new Object[][]{{"No invoices found", "-", "-"}};
+            }
+            
+            Object[][] data = new Object[bills.size()][3];
+            for (int i = 0; i < bills.size(); i++) {
+                Bill b = bills.get(i);
+                data[i][0] = b.getInvoiceNumber();
+                data[i][1] = b.getService();
+                data[i][2] = "₹" + String.format("%.2f", b.getAmount() != null ? b.getAmount() : 0.0);
+            }
+            return data;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Object[][]{{"Error loading bills", "-", "-"}};
+        }
+    }
+    
+    public void refreshData(ApplicationContext context) {
+        if (this.appointmentTableModel != null) {
+            Object[][] newData = loadAppointments(context);
+            this.appointmentTableModel.setDataVector(newData, new String[]{"Date", "Doctor", "Reason", "Status"});
+            
+            if (apptsLbl != null) {
+                if (newData.length == 1 && "No appointments found".equals(newData[0][0])) {
+                    apptsLbl.setText("0");
+                } else {
+                    apptsLbl.setText(String.valueOf(newData.length));
+                }
+                // Placeholder bindings for future Medical Record database implementation
+                reportsLbl.setText("2"); 
+                healthLbl.setText("92%");
+                vitalsLbl.setText("120/80");
+            }
+        }
+        if (this.billingTableModel != null) {
+            Object[][] newBillData = loadBills(context);
+            this.billingTableModel.setDataVector(newBillData, new String[]{"Invoice #", "Service", "Amount"});
+        }
     }
 
     private JButton createSidebarNavButton(String text, String pageName) {
@@ -161,7 +257,7 @@ public class PatientDashboard extends JPanel {
         return btn;
     }
 
-    private JPanel createCompactStatCard(String title, String val) {
+    private JPanel createCompactStatCard(String title, JLabel v) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -174,7 +270,6 @@ public class PatientDashboard extends JPanel {
         t.setForeground(Color.GRAY);
         card.add(t, BorderLayout.NORTH);
 
-        JLabel v = new JLabel(val);
         v.setFont(new Font("SansSerif", Font.BOLD, 22));
         v.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
         v.setHorizontalAlignment(SwingConstants.CENTER);
@@ -184,6 +279,11 @@ public class PatientDashboard extends JPanel {
     }
 
     private JPanel createDataSection(String title, String[] headers, Object[][] data) {
+        DefaultTableModel model = new DefaultTableModel(data, headers);
+        return createDataSectionFromModel(title, model);
+    }
+    
+    private JPanel createDataSectionFromModel(String title, DefaultTableModel model) {
         JPanel section = new JPanel(new BorderLayout());
         section.setOpaque(false);
         
@@ -193,7 +293,6 @@ public class PatientDashboard extends JPanel {
         lbl.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         section.add(lbl, BorderLayout.NORTH);
 
-        DefaultTableModel model = new DefaultTableModel(data, headers);
         JTable table = new JTable(model);
         table.setRowHeight(40);
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));

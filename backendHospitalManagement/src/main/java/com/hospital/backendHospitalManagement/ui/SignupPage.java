@@ -1,17 +1,22 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.hospital.backendHospitalManagement.model.*;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class SignupPage extends JPanel {
     private final PromethiusFrame frame;
+    private final ApplicationContext context;
     private final JTextField nameField, emailField, bloodGroupField, specialisationField;
     private final JPasswordField passwordField;
     private final JComboBox<String> roleCombo;
 
     public SignupPage(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
+        this.context = context;
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.BEIGE);
 
@@ -100,21 +105,51 @@ public class SignupPage extends JPanel {
     }
 
     private void handleSignup() {
-        String name = nameField.getText();
-        String email = emailField.getText();
-        String role = (String) roleCombo.getSelectedItem();
-        
-        if (email.isEmpty() || name.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
-            return;
-        }
+        try {
+            String role = (String) roleCombo.getSelectedItem();
+            String name = nameField.getText();
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword());
+            String bg = bloodGroupField.getText();
+            String spec = specialisationField.getText();
 
-        JOptionPane.showMessageDialog(this, "Account created successfully for " + name + "! (Demo Mode)");
-        
-        // Update session state in frame
-        frame.setLoggedIn(email, role, name);
-        
-        // Redirect to Landing instead of Dashboard
-        frame.showPage("LANDING");
+            PasswordEncoder encoder = context.getBean(PasswordEncoder.class);
+            String encodedHash = encoder.encode(password);
+
+            Long newId = null;
+            if ("DOCTOR".equals(role)) {
+                Doctor newDoc = new Doctor();
+                newDoc.setName(name);
+                newDoc.setEmail(email);
+                newDoc.setPassword(encodedHash);
+                newDoc.setRole("doctor");
+                newDoc.setSpecialisation(spec);
+
+                DoctorRepo drRepo = context.getBean(DoctorRepo.class);
+                newDoc = drRepo.save(newDoc);
+                newId = newDoc.getId();
+
+            } else {
+                Patient newPatient = new Patient();
+                newPatient.setName(name);
+                newPatient.setEmail(email);
+                newPatient.setPassword(encodedHash);
+                newPatient.setRole("patient");
+                newPatient.setBloodGroup(bg);
+
+                PatientRepo prRepo = context.getBean(PatientRepo.class);
+                newPatient = prRepo.save(newPatient);
+                newId = newPatient.getId();
+            }
+
+            frame.setLoggedInUserId(newId);
+            JOptionPane.showMessageDialog(this, "Account created successfully!");
+
+            if ("DOCTOR".equals(role)) frame.showPage("DOCTOR_DASHBOARD");
+            else frame.showPage("PATIENT_DASHBOARD");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error creating account: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

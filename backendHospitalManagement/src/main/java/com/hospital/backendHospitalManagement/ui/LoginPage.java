@@ -1,17 +1,23 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.hospital.backendHospitalManagement.model.*;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 
 public class LoginPage extends JPanel {
     private final PromethiusFrame frame;
+    private final ApplicationContext context;
     private final JTextField emailField;
     private final JPasswordField passwordField;
     private final JComboBox<String> roleCombo;
 
     public LoginPage(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
+        this.context = context;
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.BEIGE);
 
@@ -88,24 +94,56 @@ public class LoginPage extends JPanel {
     }
 
     private void handleLogin() {
-        String email = emailField.getText();
         String role = (String) roleCombo.getSelectedItem();
+        String email = emailField.getText();
+        String password = new String(passwordField.getPassword());
         
-        if (email.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter your email.");
-            return;
+        try {
+            PersonRepo personRepo = context.getBean(PersonRepo.class);
+            PasswordEncoder passwordEncoder = context.getBean(PasswordEncoder.class);
+
+            Optional<Person> personOpt = personRepo.findByEmail(email);
+
+            if (personOpt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Invalid credentials: User not found.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Person person = personOpt.get();
+
+            boolean matches = false;
+            // First check if it matches BCrypt
+            if (passwordEncoder.matches(password, person.getPassword())) {
+                matches = true;
+            } else if (password.equals(person.getPassword())) {
+                // Fallback for plain-text passwords during testing
+                matches = true;
+            }
+
+            if (!matches) {
+                JOptionPane.showMessageDialog(this, "Invalid credentials: Password incorrect.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (("Doctor".equals(role) && !person.getRole().equalsIgnoreCase("doctor")) ||
+                ("Patient".equals(role) && !person.getRole().equalsIgnoreCase("patient"))) {
+                JOptionPane.showMessageDialog(this, "Invalid role selected for this account.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            frame.setLoggedInUserId(person.getId());
+            frame.setLoggedIn(person.getEmail(), role, person.getName());
+
+            JOptionPane.showMessageDialog(this, "Logged in as " + role + " successfully!");
+
+            if ("Doctor".equals(role)) {
+                frame.showPage("DOCTOR_DASHBOARD");
+            } else {
+                frame.showPage("PATIENT_DASHBOARD");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Could not connect to database for login.", "Login Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        JOptionPane.showMessageDialog(this, "Logged in as " + role + " successfully! (Demo Mode)");
-        
-        // Extract a name from email if name isn't available
-        String name = email.split("@")[0];
-        name = name.substring(0, 1).toUpperCase() + name.substring(1);
-
-        // Update session state in frame
-        frame.setLoggedIn(email, role.toUpperCase(), name);
-        
-        // Redirect to Landing instead of Dashboard
-        frame.showPage("LANDING");
     }
 }

@@ -1,18 +1,24 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
+import com.hospital.backendHospitalManagement.model.*;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class DoctorBookingPage extends JPanel {
     private final PromethiusFrame frame;
+    private final ApplicationContext context;
     private final JPanel slotGrid;
     private final JLabel selectedTimeLbl;
     private final java.util.List<JButton> timeSlotButtons = new java.util.ArrayList<>();
     private final java.util.List<JButton> dayButtons = new java.util.ArrayList<>();
+    private final JLabel nameLbl;
+    private final JLabel specLbl;
 
     public DoctorBookingPage(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
+        this.context = context;
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 
@@ -43,19 +49,19 @@ public class DoctorBookingPage extends JPanel {
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
 
-        JLabel name = new JLabel("Dr. Chaithra H");
-        name.setFont(new Font("SansSerif", Font.BOLD, 28));
-        name.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        nameLbl = new JLabel("Dr. Name Placeholder");
+        nameLbl.setFont(new Font("SansSerif", Font.BOLD, 28));
+        nameLbl.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
         
-        JLabel spec = new JLabel("General Physician / Internal Medicine Specialist");
-        spec.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        specLbl = new JLabel("Specialization Placeholder");
+        specLbl.setFont(new Font("SansSerif", Font.PLAIN, 18));
         
         JLabel exp = new JLabel("6+ years experience");
         exp.setFont(new Font("SansSerif", Font.BOLD, 16));
         exp.setForeground(PromethiusFrame.APOLLO_BLUE);
 
-        profile.add(name);
-        profile.add(spec);
+        profile.add(nameLbl);
+        profile.add(specLbl);
         profile.add(exp);
         profile.add(Box.createVerticalStrut(20));
         profile.add(new JLabel("Qualifications: MBBS, MD (General Medicine)"));
@@ -194,10 +200,49 @@ public class DoctorBookingPage extends JPanel {
 
     private void finalizeBooking() {
         if (selectedTimeLbl.getText().contains("Selected")) {
-            JOptionPane.showMessageDialog(this, "Appointment Scheduled Successfully for " + selectedTimeLbl.getText().split(": ")[1] + "!");
-            frame.showPage("PATIENT_DASHBOARD");
+            try {
+                AppointmentRepo appRepo = context.getBean(AppointmentRepo.class);
+                
+                Appointment appt = new Appointment();
+                
+                Long pId = frame.getLoggedInUserId();
+                if (pId == null) pId = 1L; // fallback
+                
+                Long doctorIdToBook = frame.getCurrentSelectedDoctorId();
+                if (doctorIdToBook == null) doctorIdToBook = 1L;
+
+                appt.setPatientId(pId);
+                appt.setDoctorId(doctorIdToBook); 
+                appt.setTypeOfAppointment("In-Clinic - " + selectedTimeLbl.getText().split(": ")[1]);
+                appt.setStatus("Waiting");
+                
+                appRepo.save(appt);
+                
+                JOptionPane.showMessageDialog(this, "Appointment Scheduled Successfully!");
+                frame.showPage("PATIENT_DASHBOARD");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error storing appointment in DB.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Please select a time slot first.");
+        }
+    }
+
+    public void refreshData(ApplicationContext context) {
+        try {
+            Long docId = frame.getCurrentSelectedDoctorId();
+            if (docId != null) {
+                DoctorRepo docRepo = context.getBean(DoctorRepo.class);
+                java.util.Optional<Doctor> dOpt = docRepo.findById(docId);
+                if (dOpt.isPresent()) {
+                    Doctor doc = dOpt.get();
+                    nameLbl.setText(doc.getName().startsWith("Dr.") ? doc.getName() : "Dr. " + doc.getName());
+                    specLbl.setText(doc.getSpecialisation() != null ? doc.getSpecialisation() : "General Physician");
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }

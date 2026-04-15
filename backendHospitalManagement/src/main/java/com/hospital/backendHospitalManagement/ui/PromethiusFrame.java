@@ -13,6 +13,9 @@ public class PromethiusFrame extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
 
+    // Store the logged-in user's ID so that pages like PatientDashboard know who is active
+    private Long loggedInUserId;
+
     public static final Color STAR_COMMAND_BLUE = new Color(0, 123, 184);
     public static final Color CYAN = new Color(0, 191, 255); // Deep Sky Blue / Cyan hybrid
     public static final Color APOLLO_BLUE = new Color(0, 0, 255);
@@ -21,10 +24,12 @@ public class PromethiusFrame extends JFrame {
     public static final Color PURE_WHITE = Color.WHITE;
     public static final Font MAIN_FONT = new Font("SansSerif", Font.PLAIN, 18);
     public static final Font HEADER_FONT = new Font("SansSerif", Font.BOLD, 24);
-    
+
     private String currentUserEmail = null;
     private String currentUserRole = null;
     private String currentUserName = null;
+
+    private Long currentSelectedDoctorId;
 
     public PromethiusFrame(ApplicationContext context) {
         this.context = context;
@@ -72,7 +77,7 @@ public class PromethiusFrame extends JFrame {
         mainPanel.add(new InsurancePage(this), "PATIENT_INSURANCE");
         mainPanel.add(new EmergencyPage(this), "EMERGENCY_SUPPORT");
         mainPanel.add(new LabTestsPage(this), "LAB_TESTS");
-        
+
         // Doctor Specific Pages
         mainPanel.add(new DoctorRoundsPage(this), "DOCTOR_ROUNDS");
         mainPanel.add(new DoctorPatientRecordsPage(this), "DOCTOR_PATIENT_RECORDS");
@@ -89,11 +94,23 @@ public class PromethiusFrame extends JFrame {
 
     public void showPage(String pageName) {
         for (Component comp : mainPanel.getComponents()) {
-            if ("DOCTOR_DASHBOARD".equals(pageName) && comp instanceof DoctorDashboard) {
+            if ("PATIENT_DASHBOARD".equals(pageName) && comp instanceof PatientDashboard) {
+                ((PatientDashboard) comp).refreshData(context);
+            } else if ("DOCTOR_DASHBOARD".equals(pageName) && comp instanceof DoctorDashboard) {
                 ((DoctorDashboard) comp).refreshData(context);
+            } else if ("PATIENT_DOCTOR_PROFILE".equals(pageName) && comp instanceof DoctorBookingPage) {
+                ((DoctorBookingPage) comp).refreshData(context);
             }
         }
         cardLayout.show(mainPanel, pageName);
+    }
+
+    public void setLoggedInUserId(Long id) {
+        this.loggedInUserId = id;
+    }
+
+    public Long getLoggedInUserId() {
+        return this.loggedInUserId;
     }
 
     public void setLoggedIn(String email, String role, String name) {
@@ -107,6 +124,7 @@ public class PromethiusFrame extends JFrame {
         this.currentUserEmail = null;
         this.currentUserRole = null;
         this.currentUserName = null;
+        this.loggedInUserId = null;
         refreshPages();
         showPage("LANDING");
     }
@@ -138,6 +156,9 @@ public class PromethiusFrame extends JFrame {
             }
         }
     }
+
+    public Long getCurrentSelectedDoctorId() { return currentSelectedDoctorId; }
+    public void setCurrentSelectedDoctorId(Long doctorId) { this.currentSelectedDoctorId = doctorId; }
 
     public void showDoctorSpecialty(String specialty) {
         // Find the DoctorListView component and filter it
