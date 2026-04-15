@@ -3,6 +3,8 @@ package com.hospital.backendHospitalManagement.ui;
 import org.springframework.context.ApplicationContext;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class DoctorListingPage extends JPanel {
     private final PromethiusFrame frame;
@@ -18,12 +20,17 @@ public class DoctorListingPage extends JPanel {
         header.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         header.setPreferredSize(new Dimension(1200, 60));
         
-        JButton backBtn = new JButton("◀ Back to Dashboard");
-        backBtn.setForeground(Color.WHITE);
-        backBtn.setContentAreaFilled(false);
-        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
-        backBtn.addActionListener(e -> frame.showPage("PATIENT_DASHBOARD"));
-        header.add(backBtn, BorderLayout.WEST);
+        JButton backHomeBtn = new JButton("◀ Home");
+        backHomeBtn.setForeground(Color.WHITE);
+        backHomeBtn.setContentAreaFilled(false);
+        backHomeBtn.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        backHomeBtn.addActionListener(e -> frame.showPage("LANDING"));
+        
+        JPanel backBtns = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        backBtns.setOpaque(false);
+        backBtns.add(backHomeBtn);
+
+        header.add(backBtns, BorderLayout.WEST);
         
         JLabel title = new JLabel("Find Your Specialist - Promethius+", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
@@ -103,15 +110,25 @@ public class DoctorListingPage extends JPanel {
     }
 
     private JPanel createDoctorListItem(String name, String spec, String exp, String loc, String price) {
-        JPanel card = new JPanel(new BorderLayout());
+        JPanel card = new JPanel(new BorderLayout(25, 0));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-            BorderFactory.createEmptyBorder(20, 25, 20, 25)
+            BorderFactory.createEmptyBorder(20, 30, 20, 30)
         ));
-        card.setMaximumSize(new Dimension(850, 180));
+        card.setMaximumSize(new Dimension(850, 150));
 
-        // Info Section
+        // --- WEST: Profile Icon ---
+        JPanel iconPanel = new JPanel(new GridBagLayout());
+        iconPanel.setOpaque(false);
+        iconPanel.setPreferredSize(new Dimension(80, 80));
+        JLabel iconLbl = new JLabel("👤");
+        iconLbl.setFont(new Font("SansSerif", Font.PLAIN, 50));
+        iconLbl.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        iconPanel.add(iconLbl);
+        card.add(iconPanel, BorderLayout.WEST);
+
+        // --- CENTER: Info ---
         JPanel info = new JPanel();
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
         info.setOpaque(false);
@@ -131,36 +148,37 @@ public class DoctorListingPage extends JPanel {
         JLabel l = new JLabel("📍 " + loc);
         l.setFont(new Font("SansSerif", Font.PLAIN, 14));
         
+        info.add(Box.createVerticalGlue());
         info.add(n);
         info.add(s);
-        info.add(Box.createVerticalStrut(5));
         info.add(e);
-        info.add(Box.createVerticalStrut(5));
         info.add(l);
-        
+        info.add(Box.createVerticalGlue());
         card.add(info, BorderLayout.CENTER);
 
-        // Price & Action
+        // --- EAST: Price & Action ---
         JPanel action = new JPanel();
         action.setLayout(new BoxLayout(action, BoxLayout.Y_AXIS));
         action.setOpaque(false);
-        action.setPreferredSize(new Dimension(200, 150));
+        action.setPreferredSize(new Dimension(200, 120));
         
-        JLabel p = new JLabel(price, SwingConstants.RIGHT);
+        JLabel p = new JLabel(price);
         p.setFont(new Font("SansSerif", Font.BOLD, 24));
         p.setAlignmentX(Component.RIGHT_ALIGNMENT);
         
-        JButton book = new JButton("Online Consult");
-        book.setBackground(PromethiusFrame.CYAN);
-        book.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        JButton book = new JButton("Book Now");
+        book.setBackground(PromethiusFrame.APOLLO_BLUE);
+        book.setForeground(Color.WHITE);
         book.setFont(new Font("SansSerif", Font.BOLD, 16));
         book.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        book.setPreferredSize(new Dimension(160, 40));
         book.addActionListener(ev -> frame.showPage("PATIENT_DOCTOR_PROFILE"));
 
         action.add(Box.createVerticalGlue());
         action.add(p);
-        action.add(Box.createVerticalStrut(15));
+        action.add(Box.createVerticalStrut(10));
         action.add(book);
+        action.add(Box.createVerticalGlue());
         
         card.add(action, BorderLayout.EAST);
 

@@ -100,9 +100,21 @@ public class SignupPage extends JPanel {
     }
 
     private void handleSignup() {
+        String name = nameField.getText();
+        String email = emailField.getText();
         String role = (String) roleCombo.getSelectedItem();
-        JOptionPane.showMessageDialog(this, "Account created successfully! (Demo Mode)");
-        if ("DOCTOR".equals(role)) frame.showPage("DOCTOR_DASHBOARD");
-        else frame.showPage("PATIENT_DASHBOARD");
+        
+        if (email.isEmpty() || name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Account created successfully for " + name + "! (Demo Mode)");
+        
+        // Update session state in frame
+        frame.setLoggedIn(email, role, name);
+        
+        // Redirect to Landing instead of Dashboard
+        frame.showPage("LANDING");
     }
 }

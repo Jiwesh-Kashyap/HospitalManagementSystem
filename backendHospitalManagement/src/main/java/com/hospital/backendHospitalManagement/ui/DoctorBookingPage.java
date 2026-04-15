@@ -8,6 +8,8 @@ public class DoctorBookingPage extends JPanel {
     private final PromethiusFrame frame;
     private final JPanel slotGrid;
     private final JLabel selectedTimeLbl;
+    private final java.util.List<JButton> timeSlotButtons = new java.util.ArrayList<>();
+    private final java.util.List<JButton> dayButtons = new java.util.ArrayList<>();
 
     public DoctorBookingPage(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
@@ -60,8 +62,31 @@ public class DoctorBookingPage extends JPanel {
         profile.add(new JLabel("Languages: English, Kannada, Hindi"));
         profile.add(Box.createVerticalStrut(20));
         profile.add(new JLabel("📍 Apollo 24|7 Clinic - Bangalore"));
+        profile.add(Box.createVerticalStrut(30));
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.6; gbc.weighty = 1.0;
+        JLabel bioHeader = new JLabel("Professional Biography");
+        bioHeader.setFont(new Font("SansSerif", Font.BOLD, 18));
+        bioHeader.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        profile.add(bioHeader);
+        profile.add(Box.createVerticalStrut(10));
+
+        JTextArea bio = new JTextArea(
+            "Dr. Chaithra H is a highly acclaimed specialist with over 6 years of intensive experience in Internal Medicine. " +
+            "Representing a dedication to patient-centric care, she has successfully managed complex clinical cases across " +
+            "multispecialty institutions. Her expertise encompasses chronic disease management, preventive healthcare, and " +
+            "comprehensive diagnostic evaluations. Known for her compassionate approach, she ensures every patient receives " +
+            "tailored treatment plans that prioritize long-term wellness and recovery."
+        );
+        bio.setLineWrap(true);
+        bio.setWrapStyleWord(true);
+        bio.setEditable(false);
+        bio.setBackground(PromethiusFrame.PURE_WHITE);
+        bio.setFont(new Font("SansSerif", Font.ITALIC, 14));
+        bio.setForeground(Color.DARK_GRAY);
+        profile.add(bio);
+        profile.add(Box.createVerticalGlue());
+
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.55; gbc.weighty = 1.0;
         main.add(profile, gbc);
 
         // Right Panel: Booking
@@ -80,19 +105,27 @@ public class DoctorBookingPage extends JPanel {
         slotContainer.setLayout(new BoxLayout(slotContainer, BoxLayout.Y_AXIS));
         slotContainer.setBackground(PromethiusFrame.PURE_WHITE);
 
-        // Date Slider Mock
-        JPanel dateSlider = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        dateSlider.setOpaque(false);
-        String[] days = {"Mon 13", "Tue 14", "Wed 15", "Thu 16", "Fri 17", "Sat 18"};
-        for (String day : days) {
-            JButton dayBtn = new JButton(day);
-            dayBtn.setPreferredSize(new Dimension(80, 50));
-            dayBtn.setBackground(day.equals("Mon 13") ? PromethiusFrame.CYAN : Color.WHITE);
-            dayBtn.setForeground(day.equals("Mon 13") ? PromethiusFrame.STAR_COMMAND_BLUE : Color.BLACK);
-            dateSlider.add(dayBtn);
+        // Date Selector Redesign: Vertical Row Layout
+        JPanel dayPanel = new JPanel();
+        dayPanel.setLayout(new BoxLayout(dayPanel, BoxLayout.Y_AXIS));
+        dayPanel.setOpaque(false);
+        
+        String[] fullDays = {"Monday, Apr 13", "Tuesday, Apr 14", "Wednesday, Apr 15", "Thursday, Apr 16", "Friday, Apr 17", "Saturday, Apr 18"};
+        for (int i = 0; i < fullDays.length; i++) {
+            String day = fullDays[i];
+            JButton dBtn = new JButton(day);
+            dBtn.setFocusPainted(false);
+            dBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+            dBtn.setMaximumSize(new Dimension(350, 45));
+            dBtn.setBackground(i == 0 ? PromethiusFrame.CYAN : Color.WHITE);
+            dBtn.setForeground(i == 0 ? PromethiusFrame.STAR_COMMAND_BLUE : Color.BLACK);
+            dBtn.addActionListener(e -> selectDay(dBtn));
+            dayButtons.add(dBtn);
+            dayPanel.add(dBtn);
+            dayPanel.add(Box.createVerticalStrut(8));
         }
         slotContainer.add(Box.createVerticalStrut(20));
-        slotContainer.add(dateSlider);
+        slotContainer.add(dayPanel);
 
         // Time Grid
         slotGrid = new JPanel(new GridLayout(0, 4, 10, 10));
@@ -102,8 +135,12 @@ public class DoctorBookingPage extends JPanel {
             JButton tBtn = new JButton(t);
             tBtn.setFocusPainted(false);
             tBtn.setBackground(Color.WHITE);
-            tBtn.setForeground(Color.BLACK); // Explicitly set text color for visibility
-            tBtn.addActionListener(e -> selectTime(t));
+            tBtn.setForeground(Color.BLACK);
+            tBtn.addActionListener(e -> {
+                selectTime(t);
+                highlightTimeButton(tBtn);
+            });
+            timeSlotButtons.add(tBtn);
             slotGrid.add(tBtn);
         }
         slotContainer.add(Box.createVerticalStrut(30));
@@ -130,6 +167,24 @@ public class DoctorBookingPage extends JPanel {
         main.add(booking, gbc);
 
         add(main, BorderLayout.CENTER);
+    }
+
+    private void selectDay(JButton selectedBtn) {
+        for (JButton btn : dayButtons) {
+            btn.setBackground(Color.WHITE);
+            btn.setForeground(Color.BLACK);
+        }
+        selectedBtn.setBackground(PromethiusFrame.CYAN);
+        selectedBtn.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+    }
+
+    private void highlightTimeButton(JButton selectedBtn) {
+        for (JButton btn : timeSlotButtons) {
+            btn.setBackground(Color.WHITE);
+            btn.setForeground(Color.BLACK);
+        }
+        selectedBtn.setBackground(PromethiusFrame.CYAN);
+        selectedBtn.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
     }
 
     private void selectTime(String t) {

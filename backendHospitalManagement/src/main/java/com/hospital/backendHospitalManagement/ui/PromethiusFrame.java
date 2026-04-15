@@ -21,6 +21,10 @@ public class PromethiusFrame extends JFrame {
     public static final Color PURE_WHITE = Color.WHITE;
     public static final Font MAIN_FONT = new Font("SansSerif", Font.PLAIN, 18);
     public static final Font HEADER_FONT = new Font("SansSerif", Font.BOLD, 24);
+    
+    private String currentUserEmail = null;
+    private String currentUserRole = null;
+    private String currentUserName = null;
 
     public PromethiusFrame(ApplicationContext context) {
         this.context = context;
@@ -64,6 +68,11 @@ public class PromethiusFrame extends JFrame {
         mainPanel.add(new DoctorBookingPage(this, context), "PATIENT_DOCTOR_PROFILE");
         mainPanel.add(new DoctorListingPage(this, context), "PATIENT_BOOKING_LIST");
         
+        // New Feature Pages
+        mainPanel.add(new InsurancePage(this), "PATIENT_INSURANCE");
+        mainPanel.add(new EmergencyPage(this), "EMERGENCY_SUPPORT");
+        mainPanel.add(new LabTestsPage(this), "LAB_TESTS");
+        
         // Doctor Specific Pages
         mainPanel.add(new DoctorRoundsPage(this), "DOCTOR_ROUNDS");
         mainPanel.add(new DoctorPatientRecordsPage(this), "DOCTOR_PATIENT_RECORDS");
@@ -80,6 +89,49 @@ public class PromethiusFrame extends JFrame {
 
     public void showPage(String pageName) {
         cardLayout.show(mainPanel, pageName);
+    }
+
+    public void setLoggedIn(String email, String role, String name) {
+        this.currentUserEmail = email;
+        this.currentUserRole = role;
+        this.currentUserName = name;
+        refreshPages();
+    }
+
+    public void logout() {
+        this.currentUserEmail = null;
+        this.currentUserRole = null;
+        this.currentUserName = null;
+        refreshPages();
+        showPage("LANDING");
+    }
+
+    public String getCurrentUserRole() {
+        return currentUserRole;
+    }
+
+    public String getCurrentUserName() {
+        return currentUserName;
+    }
+
+    public String getCurrentUserEmail() {
+        return currentUserEmail;
+    }
+
+    public boolean isPatientLoggedIn() {
+        return "PATIENT".equalsIgnoreCase(currentUserRole);
+    }
+
+    public boolean isDoctorLoggedIn() {
+        return "DOCTOR".equalsIgnoreCase(currentUserRole);
+    }
+
+    private void refreshPages() {
+        for (Component comp : mainPanel.getComponents()) {
+            if (comp instanceof LandingPage) {
+                ((LandingPage) comp).refreshLoginState();
+            }
+        }
     }
 
     public void showDoctorSpecialty(String specialty) {

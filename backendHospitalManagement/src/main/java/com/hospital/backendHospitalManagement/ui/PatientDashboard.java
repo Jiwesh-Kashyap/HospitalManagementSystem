@@ -13,23 +13,28 @@ public class PatientDashboard extends JPanel {
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.BEIGE);
 
-        // --- Sidebar ---
+        // --- Sidebar Redesign (Utilizing more space) ---
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
-        sidebar.setPreferredSize(new Dimension(260, 800));
-        sidebar.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        sidebar.setPreferredSize(new Dimension(320, 800)); // Increased width
+        sidebar.setBorder(BorderFactory.createEmptyBorder(30, 20, 30, 20)); // Increased padding
 
         sidebar.add(createSidebarHeader("MAIN MENU"));
         sidebar.add(createSidebarNavButton("Dashboard", "PATIENT_DASHBOARD"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("My Appointments", "PATIENT_APPOINTMENTS"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("Medical Records", "PATIENT_RECORDS"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("Billing Summary", "PATIENT_BILLING"));
         
         sidebar.add(Box.createVerticalStrut(30));
         sidebar.add(createSidebarHeader("ACCOUNT & SUPPORT"));
         sidebar.add(createSidebarNavButton("My Profile & Details", "PATIENT_PROFILE"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("Contact Us / Help", "PATIENT_SUPPORT"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("FAQs", "PATIENT_SUPPORT"));
 
         sidebar.add(Box.createVerticalGlue());
@@ -48,18 +53,35 @@ public class PatientDashboard extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
         
+        JPanel titleBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        titleBox.setOpaque(false);
+
+        JButton homeBtn = new JButton("◀ Home");
+        homeBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        homeBtn.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        homeBtn.setContentAreaFilled(false);
+        homeBtn.addActionListener(e -> frame.showPage("LANDING"));
+        titleBox.add(homeBtn);
+
         JLabel welcome = new JLabel("Welcome Back, Patient!");
         welcome.setFont(new Font("SansSerif", Font.BOLD, 30));
         welcome.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
-        headerPanel.add(welcome, BorderLayout.WEST);
+        titleBox.add(welcome);
 
-        // Smaller Booking Button at Top-Right
-        JButton topBookBtn = new JButton("Book Appointment");
-        topBookBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
+        headerPanel.add(titleBox, BorderLayout.WEST);
+
+        // Stylized Booking Button (Prominent Design)
+        JButton topBookBtn = new JButton("📅 Book New Appointment");
+        topBookBtn.setFont(new Font("SansSerif", Font.BOLD, 17));
         topBookBtn.setBackground(PromethiusFrame.CYAN);
         topBookBtn.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
-        topBookBtn.setPreferredSize(new Dimension(180, 40));
+        topBookBtn.setPreferredSize(new Dimension(260, 50));
         topBookBtn.setFocusPainted(false);
+        topBookBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        topBookBtn.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(PromethiusFrame.STAR_COMMAND_BLUE, 2),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
         topBookBtn.addActionListener(e -> frame.showPage("PATIENT_BOOKING_LIST"));
         headerPanel.add(topBookBtn, BorderLayout.EAST);
 
@@ -120,21 +142,22 @@ public class PatientDashboard extends JPanel {
     private JLabel createSidebarHeader(String text) {
         JLabel l = new JLabel(text);
         l.setForeground(new Color(200, 230, 255));
-        l.setFont(new Font("SansSerif", Font.BOLD, 13));
-        l.setBorder(BorderFactory.createEmptyBorder(10, 15, 5, 15));
-        l.setAlignmentX(Component.CENTER_ALIGNMENT);
+        l.setFont(new Font("SansSerif", Font.BOLD, 14));
+        l.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 15));
+        l.setAlignmentX(Component.LEFT_ALIGNMENT);
         return l;
     }
 
     private JButton createSidebarButton(String text) {
         JButton btn = new JButton(text);
-        btn.setMaximumSize(new Dimension(260, 45));
+        btn.setMaximumSize(new Dimension(320, 50));
         btn.setForeground(Color.WHITE);
         btn.setContentAreaFilled(false);
-        btn.setFont(new Font("SansSerif", Font.PLAIN, 17));
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
         return btn;
     }
 
@@ -172,13 +195,17 @@ public class PatientDashboard extends JPanel {
 
         DefaultTableModel model = new DefaultTableModel(data, headers);
         JTable table = new JTable(model);
-        table.setRowHeight(35);
+        table.setRowHeight(40);
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
         table.setFont(new Font("SansSerif", Font.PLAIN, 15));
         table.setFillsViewportHeight(true);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setAutoCreateRowSorter(true); // Enable Sorting
         
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setPreferredSize(new Dimension(800, 140));
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scroll.setPreferredSize(new Dimension(800, 160));
         section.add(scroll, BorderLayout.CENTER);
 
         return section;

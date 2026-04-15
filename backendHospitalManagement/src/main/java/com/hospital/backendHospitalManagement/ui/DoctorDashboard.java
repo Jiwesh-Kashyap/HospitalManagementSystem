@@ -12,17 +12,20 @@ public class DoctorDashboard extends JPanel {
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.BEIGE);
 
-        // Sidebar
+        // --- Sidebar Redesign (Consistency with Patient UI) ---
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
-        sidebar.setPreferredSize(new Dimension(250, 800));
-        sidebar.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        sidebar.setPreferredSize(new Dimension(320, 800)); // Increased width
+        sidebar.setBorder(BorderFactory.createEmptyBorder(30, 20, 30, 20)); // Generous padding
 
         sidebar.add(createSidebarHeader("DOCTOR MENU"));
         sidebar.add(createSidebarNavButton("Physician Portal", "DOCTOR_DASHBOARD"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("Upcoming Rounds", "DOCTOR_ROUNDS"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("Patient Records", "DOCTOR_PATIENT_RECORDS"));
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(createSidebarNavButton("Lab Results", "DOCTOR_LAB_RESULTS"));
         
         sidebar.add(Box.createVerticalGlue());
@@ -35,12 +38,28 @@ public class DoctorDashboard extends JPanel {
         // Main Content
         JPanel content = new JPanel(new BorderLayout());
         content.setOpaque(false);
-        content.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        // Header: Personalized Greeting + Home Button
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
 
-        JLabel title = new JLabel("Physician Portal - Welcome Dr. Smith");
-        title.setFont(PromethiusFrame.HEADER_FONT);
+        JPanel titleBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        titleBox.setOpaque(false);
+
+        JButton homeBtn = new JButton("◀ Home");
+        homeBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        homeBtn.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        homeBtn.setContentAreaFilled(false);
+        homeBtn.addActionListener(e -> frame.showPage("LANDING"));
+        titleBox.add(homeBtn);
+
+        String docName = frame.getCurrentUserName() != null ? frame.getCurrentUserName() : "Physician";
+        JLabel title = new JLabel("Welcome, Dr. " + docName);
+        title.setFont(new Font("SansSerif", Font.BOLD, 30));
         title.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
-        content.add(title, BorderLayout.NORTH);
+        titleBox.add(title);
+        
+        headerPanel.add(titleBox, BorderLayout.WEST);
+        content.add(headerPanel, BorderLayout.NORTH);
 
         // Quick Stats
         JPanel stats = new JPanel(new GridLayout(1, 3, 20, 0));
@@ -52,39 +71,76 @@ public class DoctorDashboard extends JPanel {
         
         JPanel topArea = new JPanel(new BorderLayout());
         topArea.setOpaque(false);
-        topArea.add(title, BorderLayout.NORTH);
+        topArea.add(headerPanel, BorderLayout.NORTH);
+        topArea.add(Box.createVerticalStrut(25), BorderLayout.CENTER);
         topArea.add(stats, BorderLayout.SOUTH);
         content.add(topArea, BorderLayout.NORTH);
 
-        // Mock Patient Table
-        String[] columnNames = {"Time", "Patient Name", "Reason", "Status"};
-        Object[][] data = {
-            {"09:00 AM", "John Doe", "Routine Checkup", "Waiting"},
-            {"10:30 AM", "Jane Smith", "Post-Op Review", "Confirmed"},
-            {"11:00 AM", "Michael Brown", "Consultation", "Tentative"},
-            {"12:00 PM", "Emily Davis", "Prescription Renewal", "Waiting"},
-            {"02:00 PM", "Sandra Bullock", "Emergency Follow-up", "Arrived"}
-        };
-        JTable table = new JTable(data, columnNames);
-        table.setFont(PromethiusFrame.MAIN_FONT);
-        table.setRowHeight(45);
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 18));
-        table.getTableHeader().setBackground(PromethiusFrame.CYAN);
-        table.getTableHeader().setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
-        
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(PromethiusFrame.CYAN, 1));
+        // --- Dashboard Content (Scrollable) ---
+        JPanel dashboardContent = new JPanel();
+        dashboardContent.setLayout(new BoxLayout(dashboardContent, BoxLayout.Y_AXIS));
+        dashboardContent.setOpaque(false);
+
+        // Section 1: Upcoming Appointments
+        dashboardContent.add(createDataTableSection("Today's Upcoming Appointments", new String[]{"Time", "Patient Name", "Reason", "Status"}, new Object[][]{
+            {"02:00 PM", "Sandra Bullock", "Emergency Follow-up", "Arrived"},
+            {"03:30 PM", "Tom Cruise", "Orthopedic Review", "Confirmed"},
+            {"04:15 PM", "Brad Pitt", "Routine Checkup", "Waiting"}
+        }));
+
+        dashboardContent.add(Box.createVerticalStrut(30));
+
+        // Section 2: Recent Patient Activity (Past Appointments)
+        dashboardContent.add(createDataTableSection("Recent Patient Activity (Past Appointments)", new String[]{"Date", "Patient Name", "Diagnosis", "Notes"}, new Object[][]{
+            {"Apr 14, 2026", "John Doe", "Hypertension", "Prescribed Amlodipine"},
+            {"Apr 14, 2026", "Jane Smith", "Post-Op Recovery", "Stable, continue rehab"},
+            {"Apr 13, 2026", "Michael Brown", "Type 2 Diabetes", "HbA1c normal"},
+            {"Apr 13, 2026", "Emily Davis", "Seasonal Allergies", "Prescribed Cetirizine"}
+        }));
+
+        JScrollPane scrollPane = new JScrollPane(dashboardContent);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(25);
         content.add(scrollPane, BorderLayout.CENTER);
 
         add(content, BorderLayout.CENTER);
     }
 
+    private JPanel createDataTableSection(String title, String[] headers, Object[][] data) {
+        JPanel section = new JPanel(new BorderLayout());
+        section.setOpaque(false);
+        section.setMaximumSize(new Dimension(1400, 300));
+        
+        JLabel lbl = new JLabel(title);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 22));
+        lbl.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        lbl.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
+        section.add(lbl, BorderLayout.NORTH);
+
+        JTable table = new JTable(data, headers);
+        table.setFont(PromethiusFrame.MAIN_FONT);
+        table.setRowHeight(40);
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setAutoCreateRowSorter(true);
+        
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scroll.setPreferredSize(new Dimension(800, 200));
+        section.add(scroll, BorderLayout.CENTER);
+
+        return section;
+    }
+
     private JLabel createSidebarHeader(String text) {
         JLabel l = new JLabel(text);
         l.setForeground(new Color(200, 230, 255));
-        l.setFont(new Font("SansSerif", Font.BOLD, 13));
-        l.setBorder(BorderFactory.createEmptyBorder(10, 15, 5, 15));
-        l.setAlignmentX(Component.CENTER_ALIGNMENT);
+        l.setFont(new Font("SansSerif", Font.BOLD, 14));
+        l.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 15));
+        l.setAlignmentX(Component.LEFT_ALIGNMENT);
         return l;
     }
 
@@ -96,13 +152,14 @@ public class DoctorDashboard extends JPanel {
 
     private JButton createSidebarButton(String text) {
         JButton btn = new JButton(text);
-        btn.setMaximumSize(new Dimension(250, 45));
+        btn.setMaximumSize(new Dimension(320, 50));
         btn.setForeground(Color.WHITE);
         btn.setContentAreaFilled(false);
-        btn.setFont(new Font("SansSerif", Font.PLAIN, 17));
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
         return btn;
     }
 

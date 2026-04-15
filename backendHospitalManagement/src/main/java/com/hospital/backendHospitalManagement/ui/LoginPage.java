@@ -88,13 +88,24 @@ public class LoginPage extends JPanel {
     }
 
     private void handleLogin() {
+        String email = emailField.getText();
         String role = (String) roleCombo.getSelectedItem();
+        
+        if (email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter your email.");
+            return;
+        }
+
         JOptionPane.showMessageDialog(this, "Logged in as " + role + " successfully! (Demo Mode)");
         
-        if ("Doctor".equals(role)) {
-            frame.showPage("DOCTOR_DASHBOARD");
-        } else {
-            frame.showPage("PATIENT_DASHBOARD");
-        }
+        // Extract a name from email if name isn't available
+        String name = email.split("@")[0];
+        name = name.substring(0, 1).toUpperCase() + name.substring(1);
+
+        // Update session state in frame
+        frame.setLoggedIn(email, role.toUpperCase(), name);
+        
+        // Redirect to Landing instead of Dashboard
+        frame.showPage("LANDING");
     }
 }

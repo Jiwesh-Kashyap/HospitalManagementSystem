@@ -3,6 +3,8 @@ package com.hospital.backendHospitalManagement.ui;
 import org.springframework.context.ApplicationContext;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class DoctorListView extends JPanel {
     private final PromethiusFrame frame;
@@ -56,10 +58,11 @@ public class DoctorListView extends JPanel {
         mainContent.setOpaque(false);
         mainContent.add(searchPanel, BorderLayout.NORTH);
 
-        // Doctor Cards Grid
-        doctorGrid = new JPanel(new GridLayout(0, 3, 30, 30));
+        // Doctor Cards List (Vertical stack of horizontal rows)
+        doctorGrid = new JPanel();
+        doctorGrid.setLayout(new BoxLayout(doctorGrid, BoxLayout.Y_AXIS));
         doctorGrid.setBackground(PromethiusFrame.PURE_WHITE);
-        doctorGrid.setBorder(BorderFactory.createEmptyBorder(30, 60, 30, 60));
+        doctorGrid.setBorder(BorderFactory.createEmptyBorder(30, 100, 30, 100));
 
         JScrollPane scroll = new JScrollPane(doctorGrid);
         scroll.setBorder(null);
@@ -86,6 +89,7 @@ public class DoctorListView extends JPanel {
             String name = "Dr. " + firstNames[(int)(Math.random() * 6)] + " " + lastNames[(int)(Math.random() * 6)];
             String exp = exps[(int)(Math.random() * 4)];
             doctorGrid.add(createDoctorCard(name, specialty, exp));
+            doctorGrid.add(Box.createVerticalStrut(20)); // Spacing between rows
         }
         
         doctorGrid.revalidate();
@@ -93,46 +97,78 @@ public class DoctorListView extends JPanel {
     }
 
     private JPanel createDoctorCard(String name, String spec, String exp) {
-        JPanel card = new JPanel();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        JPanel card = new JPanel(new BorderLayout(25, 0));
         card.setBackground(PromethiusFrame.PURE_WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-            BorderFactory.createEmptyBorder(20, 20, 20, 20)
+            BorderFactory.createEmptyBorder(20, 30, 20, 30)
         ));
+        card.setMaximumSize(new Dimension(1000, 140));
+        card.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // --- WEST: Profile Icon ---
+        JPanel iconPanel = new JPanel(new GridBagLayout());
+        iconPanel.setOpaque(false);
+        iconPanel.setPreferredSize(new Dimension(80, 80));
+        JLabel iconLbl = new JLabel("👤");
+        iconLbl.setFont(new Font("SansSerif", Font.PLAIN, 50));
+        iconLbl.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        iconPanel.add(iconLbl);
+        card.add(iconPanel, BorderLayout.WEST);
+
+        // --- CENTER: Doctor Info ---
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setOpaque(false);
+        
         JLabel n = new JLabel(name);
-        n.setFont(new Font("SansSerif", Font.BOLD, 22));
+        n.setFont(new Font("SansSerif", Font.BOLD, 24));
         n.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
-        n.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         JLabel s = new JLabel(spec);
         s.setFont(new Font("SansSerif", Font.ITALIC, 18));
         s.setForeground(PromethiusFrame.CYAN);
-        s.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel e = new JLabel(exp);
         e.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        e.setAlignmentX(Component.CENTER_ALIGNMENT);
+        e.setForeground(Color.GRAY);
 
+        infoPanel.add(Box.createVerticalGlue());
+        infoPanel.add(n);
+        infoPanel.add(s);
+        infoPanel.add(e);
+        infoPanel.add(Box.createVerticalGlue());
+        card.add(infoPanel, BorderLayout.CENTER);
+
+        // --- EAST: Action Button ---
+        JPanel actionPanel = new JPanel(new GridBagLayout());
+        actionPanel.setOpaque(false);
+        
         JButton book = new JButton("Book Appointment");
         book.setBackground(PromethiusFrame.APOLLO_BLUE);
         book.setForeground(Color.WHITE);
         book.setFont(new Font("SansSerif", Font.BOLD, 16));
-        book.setAlignmentX(Component.CENTER_ALIGNMENT);
+        book.setPreferredSize(new Dimension(200, 45));
         book.setFocusPainted(false);
-        book.addActionListener(ev -> frame.showPage("LOGIN"));
-
-        card.add(n);
-        card.add(Box.createVerticalStrut(5));
-        card.add(s);
-        card.add(Box.createVerticalStrut(5));
-        card.add(e);
-        card.add(Box.createVerticalStrut(20));
-        card.add(book);
+        book.addActionListener(ev -> {
+            if (frame.isPatientLoggedIn()) {
+                frame.showPage("PATIENT_BOOKING_LIST");
+            } else {
+                frame.showPage("LOGIN");
+            }
+        });
+        
+        actionPanel.add(book);
+        card.add(actionPanel, BorderLayout.EAST);
 
         // Hover effect for card
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) { card.setBackground(new Color(250, 252, 255)); }
+            @Override
+            public void mouseExited(MouseEvent e) { card.setBackground(PromethiusFrame.PURE_WHITE); }
+        });
 
         return card;
     }

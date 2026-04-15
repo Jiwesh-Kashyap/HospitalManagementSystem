@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 
 public class LandingPage extends JPanel {
     private final PromethiusFrame frame;
+    private JPanel authBtns;
 
     public LandingPage(PromethiusFrame frame) {
         this.frame = frame;
@@ -36,14 +37,9 @@ public class LandingPage extends JPanel {
         topHeader.add(searchPane, BorderLayout.CENTER);
 
         // Login / Signup (Blue Accents)
-        JPanel authBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
+        authBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
         authBtns.setOpaque(false);
-        JButton loginBtn = createVibrantButton("Login", PromethiusFrame.APOLLO_BLUE);
-        loginBtn.addActionListener(e -> frame.showPage("LOGIN"));
-        JButton signupBtn = createVibrantButton("Signup", PromethiusFrame.CYAN);
-        signupBtn.addActionListener(e -> frame.showPage("SIGNUP"));
-        authBtns.add(loginBtn);
-        authBtns.add(signupBtn);
+        refreshLoginState();
         topHeader.add(authBtns, BorderLayout.EAST);
 
         // --- Tier 2: Main Nav Bar (Black/White Contrast) ---
@@ -111,10 +107,19 @@ public class LandingPage extends JPanel {
                 g2.fillRect(0, 0, getWidth(), getHeight());
                 g2.setColor(PromethiusFrame.CYAN);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 48));
-                g2.drawString("Exceptional Care", 100, 120);
+                
+                String welcomeText = "Exceptional Care";
+                String subText = "Connecting you to the world's best specialists.";
+                
+                if (frame.getCurrentUserName() != null) {
+                    welcomeText = "Welcome Back, " + frame.getCurrentUserName() + "!";
+                    subText = "Ready to continue your health journey?";
+                }
+                
+                g2.drawString(welcomeText, 100, 120);
                 g2.setColor(Color.WHITE);
                 g2.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                g2.drawString("Connecting you to the world's best specialists.", 100, 170);
+                g2.drawString(subText, 100, 170);
             }
         };
         hero.setPreferredSize(new Dimension(1200, 350));
@@ -125,10 +130,10 @@ public class LandingPage extends JPanel {
         JPanel quickActions = new JPanel(new GridLayout(1, 4, 30, 0));
         quickActions.setBackground(PromethiusFrame.PURE_WHITE);
         quickActions.setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
-        quickActions.add(createActionCard("Doctor Appointment", "BOOK NOW", "👨‍⚕️", PromethiusFrame.APOLLO_BLUE));
-        quickActions.add(createActionCard("Lab Tests", "BOOK AT HOME", "🔬", PromethiusFrame.CYAN));
-        quickActions.add(createActionCard("Health Insurance", "PROTECT NOW", "🛡️", PromethiusFrame.STAR_COMMAND_BLUE));
-        quickActions.add(createActionCard("Emergency", "CALL NOW", "🚑", Color.RED));
+        quickActions.add(createActionCard("Doctor Appointment", "BOOK NOW", "👨‍⚕️", PromethiusFrame.APOLLO_BLUE, "PATIENT_BOOKING_LIST"));
+        quickActions.add(createActionCard("Lab Tests", "BOOK AT HOME", "🔬", PromethiusFrame.CYAN, "LAB_TESTS"));
+        quickActions.add(createActionCard("Health Insurance", "PROTECT NOW", "🛡️", PromethiusFrame.STAR_COMMAND_BLUE, "PATIENT_INSURANCE"));
+        quickActions.add(createActionCard("Emergency", "CALL NOW", "🚑", Color.RED, "EMERGENCY_SUPPORT"));
         content.add(quickActions);
 
         // Healthcare Grid Section
@@ -167,7 +172,35 @@ public class LandingPage extends JPanel {
         return btn;
     }
 
-    private JPanel createActionCard(String title, String sub, String icon, Color color) {
+    public void refreshLoginState() {
+        authBtns.removeAll();
+        if (frame.isPatientLoggedIn() || frame.isDoctorLoggedIn()) {
+            String btnText = frame.isPatientLoggedIn() ? "Patient Dashboard" : "Doctor Dashboard";
+            String targetPage = frame.isPatientLoggedIn() ? "PATIENT_DASHBOARD" : "DOCTOR_DASHBOARD";
+            
+            JButton dashboardBtn = createVibrantButton(btnText, PromethiusFrame.APOLLO_BLUE);
+            dashboardBtn.addActionListener(e -> frame.showPage(targetPage));
+            
+            JButton logoutBtn = createVibrantButton("Logout", Color.GRAY);
+            logoutBtn.addActionListener(e -> frame.logout());
+            
+            authBtns.add(dashboardBtn);
+            authBtns.add(logoutBtn);
+        } else {
+            JButton loginBtn = createVibrantButton("Login", PromethiusFrame.APOLLO_BLUE);
+            loginBtn.addActionListener(e -> frame.showPage("LOGIN"));
+            
+            JButton signupBtn = createVibrantButton("Signup", PromethiusFrame.CYAN);
+            signupBtn.addActionListener(e -> frame.showPage("SIGNUP"));
+            
+            authBtns.add(loginBtn);
+            authBtns.add(signupBtn);
+        }
+        authBtns.revalidate();
+        authBtns.repaint();
+    }
+
+    private JPanel createActionCard(String title, String sub, String icon, Color color, String targetPage) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1));
@@ -190,7 +223,13 @@ public class LandingPage extends JPanel {
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
         card.addMouseListener(new MouseAdapter() {
            @Override
-           public void mouseClicked(MouseEvent e) { frame.showPage("DOCTOR_SEARCH"); }
+           public void mouseClicked(MouseEvent e) { 
+               if (frame.isPatientLoggedIn() || "LOGIN".equals(targetPage)) {
+                   frame.showPage(targetPage); 
+               } else {
+                   frame.showPage("LOGIN");
+               }
+           }
         });
         return card;
     }

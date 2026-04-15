@@ -12,11 +12,24 @@ public class DoctorLabResultsPage extends JPanel {
         header.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         header.setPreferredSize(new Dimension(1200, 60));
         
-        JButton backBtn = new JButton("◀ Back");
-        backBtn.setForeground(Color.WHITE);
-        backBtn.setContentAreaFilled(false);
-        backBtn.addActionListener(e -> frame.showPage("DOCTOR_DASHBOARD"));
-        header.add(backBtn, BorderLayout.WEST);
+        JPanel navBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        navBox.setOpaque(false);
+
+        JButton homeBtn = new JButton("◀ Home");
+        homeBtn.setForeground(Color.WHITE);
+        homeBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
+        homeBtn.setContentAreaFilled(false);
+        homeBtn.addActionListener(e -> frame.showPage("LANDING"));
+        navBox.add(homeBtn);
+
+        JButton dashBtn = new JButton("◀ Dashboard");
+        dashBtn.setForeground(Color.WHITE);
+        dashBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
+        dashBtn.setContentAreaFilled(false);
+        dashBtn.addActionListener(e -> frame.showPage("DOCTOR_DASHBOARD"));
+        navBox.add(dashBtn);
+
+        header.add(navBox, BorderLayout.WEST);
         
         JLabel title = new JLabel("Pending Lab & Radiology Results", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
