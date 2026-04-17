@@ -84,7 +84,7 @@ public class PromethiusFrame extends JFrame {
         mainPanel.add(new DoctorLabResultsPage(this), "DOCTOR_LAB_RESULTS");
         mainPanel.add(new MyAppointmentsPage(this), "PATIENT_APPOINTMENTS");
         mainPanel.add(new MedicalRecordsPage(this, context), "PATIENT_RECORDS");
-        mainPanel.add(new BillingPage(this), "PATIENT_BILLING");
+        mainPanel.add(new BillingPage(this, context), "PATIENT_BILLING");
         mainPanel.add(new ProfilePage(this), "PATIENT_PROFILE");
         mainPanel.add(new SupportPage(this), "PATIENT_SUPPORT");
 
@@ -100,6 +100,10 @@ public class PromethiusFrame extends JFrame {
                 ((DoctorDashboard) comp).refreshData(context);
             } else if ("PATIENT_DOCTOR_PROFILE".equals(pageName) && comp instanceof DoctorBookingPage) {
                 ((DoctorBookingPage) comp).refreshData(context);
+            } else if ("PATIENT_RECORDS".equals(pageName) && comp instanceof MedicalRecordsPage) {
+                ((MedicalRecordsPage) comp).refreshData();
+            } else if ("PATIENT_BILLING".equals(pageName) && comp instanceof BillingPage) {
+                ((BillingPage) comp).refreshData();
             }
         }
         cardLayout.show(mainPanel, pageName);

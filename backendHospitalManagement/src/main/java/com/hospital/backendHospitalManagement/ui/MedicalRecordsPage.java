@@ -63,7 +63,7 @@ public class MedicalRecordsPage extends JPanel {
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         content.add(scrollPane, BorderLayout.CENTER);
         
-        JButton openBtn = new JButton("⬇️ Open Attached PDF");
+        JButton openBtn = new JButton("⬇️ Download Attached PDF");
         openBtn.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         openBtn.setForeground(Color.WHITE);
         openBtn.setFocusPainted(false);
@@ -86,20 +86,21 @@ public class MedicalRecordsPage extends JPanel {
                     return;
                 }
                 
-                File tempFile = File.createTempFile("Medical_Record_" + id + "_", ".pdf");
-                Files.write(tempFile.toPath(), record.getFileData());
-                // Tell system to delete it when java exits if possible, to save space
-                tempFile.deleteOnExit();
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Save Medical Record");
+                String defaultName = record.getAttachedFileName() != null ? record.getAttachedFileName() : "Medical_Record_" + id + ".pdf";
+                fileChooser.setSelectedFile(new File(defaultName));
                 
-                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                    Desktop.getDesktop().open(tempFile);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cannot automatically open files on this OS.\nFile extracted to: " + tempFile.getAbsolutePath());
+                int userSelection = fileChooser.showSaveDialog(this);
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    File fileToSave = fileChooser.getSelectedFile();
+                    Files.write(fileToSave.toPath(), record.getFileData());
+                    JOptionPane.showMessageDialog(this, "File successfully downloaded to:\n" + fileToSave.getAbsolutePath(), "Download Complete", JOptionPane.INFORMATION_MESSAGE);
                 }
                 
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error opening PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error downloading PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         
