@@ -83,7 +83,7 @@ public class PromethiusFrame extends JFrame {
         mainPanel.add(new DoctorPatientRecordsPage(this), "DOCTOR_PATIENT_RECORDS");
         mainPanel.add(new DoctorLabResultsPage(this), "DOCTOR_LAB_RESULTS");
         mainPanel.add(new MyAppointmentsPage(this), "PATIENT_APPOINTMENTS");
-        mainPanel.add(new MedicalRecordsPage(this), "PATIENT_RECORDS");
+        mainPanel.add(new MedicalRecordsPage(this, context), "PATIENT_RECORDS");
         mainPanel.add(new BillingPage(this), "PATIENT_BILLING");
         mainPanel.add(new ProfilePage(this), "PATIENT_PROFILE");
         mainPanel.add(new SupportPage(this), "PATIENT_SUPPORT");

@@ -12,6 +12,7 @@ public class PatientDashboard extends JPanel {
     private final PromethiusFrame frame;
     private DefaultTableModel appointmentTableModel;
     private DefaultTableModel billingTableModel;
+    private DefaultTableModel recordsTableModel;
     private JLabel apptsLbl;
     private JLabel reportsLbl;
     private JLabel healthLbl;
@@ -128,10 +129,11 @@ public class PatientDashboard extends JPanel {
         dashboardContent.add(appointmentsSection);
         
         dashboardContent.add(Box.createVerticalStrut(25));
-        dashboardContent.add(createDataSection("Recent Medical Records", new String[]{"Document Name", "Date", "Category"}, new Object[][]{
-            {"Blood_Report_Apr.pdf", "Apr 10, 2026", "Lab Test"},
-            {"X-Ray_Chest_Digital.jpg", "Mar 28, 2026", "Radiology"}
-        }));
+        
+        String[] recordHeaders = {"Document Name", "Date", "Category"};
+        Object[][] recordData = loadMedicalRecords(context);
+        this.recordsTableModel = new DefaultTableModel(recordData, recordHeaders);
+        dashboardContent.add(createDataSectionFromModel("Recent Medical Records", this.recordsTableModel));
 
         dashboardContent.add(Box.createVerticalStrut(25));
         
@@ -206,6 +208,31 @@ public class PatientDashboard extends JPanel {
         }
     }
     
+    private Object[][] loadMedicalRecords(ApplicationContext context) {
+        try {
+            MedicalRecordRepo recordRepo = context.getBean(MedicalRecordRepo.class);
+            Long patientId = frame.getLoggedInUserId();
+            if (patientId == null) patientId = 1L;
+            
+            List<MedicalRecord> records = recordRepo.findByPatientId(patientId);
+            if (records == null || records.isEmpty()) {
+                return new Object[][]{{"No records found", "-", "-"}};
+            }
+            
+            Object[][] data = new Object[records.size()][3];
+            for (int i = 0; i < records.size(); i++) {
+                MedicalRecord r = records.get(i);
+                data[i][0] = r.getDocumentName() != null ? r.getDocumentName() : "Untitled Document";
+                data[i][1] = r.getDate() != null ? r.getDate() : "-";
+                data[i][2] = r.getCategory() != null ? r.getCategory() : "-";
+            }
+            return data;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Object[][]{{"Error loading records", "-", "-"}};
+        }
+    }
+    
     public void refreshData(ApplicationContext context) {
         if (this.appointmentTableModel != null) {
             Object[][] newData = loadAppointments(context);
@@ -217,10 +244,19 @@ public class PatientDashboard extends JPanel {
                 } else {
                     apptsLbl.setText(String.valueOf(newData.length));
                 }
-                // Placeholder bindings for future Medical Record database implementation
-                reportsLbl.setText("2"); 
                 healthLbl.setText("92%");
                 vitalsLbl.setText("120/80");
+            }
+        }
+        if (this.recordsTableModel != null) {
+            Object[][] recordData = loadMedicalRecords(context);
+            this.recordsTableModel.setDataVector(recordData, new String[]{"Document Name", "Date", "Category"});
+            if (reportsLbl != null) {
+                if (recordData.length == 1 && "No records found".equals(recordData[0][0])) {
+                    reportsLbl.setText("0");
+                } else {
+                    reportsLbl.setText(String.valueOf(recordData.length));
+                }
             }
         }
         if (this.billingTableModel != null) {

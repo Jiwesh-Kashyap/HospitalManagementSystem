@@ -9,6 +9,8 @@ import lombok.Setter;
 @Entity
 public class Patient extends Person {
 
+    private int age;
+    private char gender;
     private String healthCondition;
     private String bloodGroup;
     private float weightInKgs;

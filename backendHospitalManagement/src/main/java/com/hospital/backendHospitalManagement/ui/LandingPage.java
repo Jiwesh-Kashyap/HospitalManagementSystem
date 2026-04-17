@@ -198,6 +198,8 @@ public class LandingPage extends JPanel {
         }
         authBtns.revalidate();
         authBtns.repaint();
+        this.revalidate();
+        this.repaint();
     }
 
     private JPanel createActionCard(String title, String sub, String icon, Color color, String targetPage) {

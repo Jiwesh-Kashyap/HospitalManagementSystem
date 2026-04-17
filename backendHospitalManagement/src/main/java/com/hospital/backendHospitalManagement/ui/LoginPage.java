@@ -47,7 +47,15 @@ public class LoginPage extends JPanel {
         title.setFont(PromethiusFrame.HEADER_FONT);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
         form.add(title);
-        form.add(Box.createVerticalStrut(20));
+        
+        JLabel subtitle = new JLabel("Welcome back to your healthcare portal", SwingConstants.CENTER);
+        subtitle.setFont(new Font("Arial", Font.ITALIC, 14));
+        subtitle.setForeground(Color.DARK_GRAY);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        form.add(Box.createVerticalStrut(5));
+        form.add(subtitle);
+        
+        form.add(Box.createVerticalStrut(25));
 
         form.add(createLabel("Login As:"));
         roleCombo = new JComboBox<>(new String[]{"Patient", "Doctor"});
@@ -67,9 +75,14 @@ public class LoginPage extends JPanel {
         form.add(passwordField);
         form.add(Box.createVerticalStrut(20));
 
-        JButton loginBtn = new JButton("Login");
+        JButton loginBtn = new JButton("Login to Dashboard");
         loginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        loginBtn.setPreferredSize(new Dimension(200, 50));
+        loginBtn.setPreferredSize(new Dimension(250, 45));
+        loginBtn.setMaximumSize(new Dimension(250, 45));
+        loginBtn.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
+        loginBtn.setForeground(Color.WHITE);
+        loginBtn.setFocusPainted(false);
+        loginBtn.setFont(new Font("Arial", Font.BOLD, 16));
         loginBtn.addActionListener(e -> handleLogin());
         form.add(loginBtn);
 

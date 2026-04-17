@@ -10,7 +10,7 @@ import java.awt.*;
 public class SignupPage extends JPanel {
     private final PromethiusFrame frame;
     private final ApplicationContext context;
-    private final JTextField nameField, emailField, bloodGroupField, specialisationField;
+    private final JTextField nameField, emailField, bloodGroupField, specialisationField, ageField, genderField;
     private final JPasswordField passwordField;
     private final JComboBox<String> roleCombo;
 
@@ -67,6 +67,16 @@ public class SignupPage extends JPanel {
         roleCombo = new JComboBox<>(new String[]{"PATIENT", "DOCTOR"});
         form.add(roleCombo);
         form.add(Box.createVerticalStrut(10));
+        
+        form.add(createLabel("Age (Patients Only):"));
+        ageField = new JTextField();
+        form.add(ageField);
+        form.add(Box.createVerticalStrut(10));
+        
+        form.add(createLabel("Gender (M/F) (Patients Only):"));
+        genderField = new JTextField();
+        form.add(genderField);
+        form.add(Box.createVerticalStrut(10));
 
         form.add(createLabel("Blood Group:"));
         bloodGroupField = new JTextField();
@@ -77,6 +87,28 @@ public class SignupPage extends JPanel {
         specialisationField = new JTextField();
         form.add(specialisationField);
         form.add(Box.createVerticalStrut(20));
+        
+        roleCombo.addActionListener(e -> {
+            String role = (String) roleCombo.getSelectedItem();
+            if ("DOCTOR".equals(role)) {
+                specialisationField.setEnabled(true);
+                bloodGroupField.setEnabled(false);
+                bloodGroupField.setText("");
+                ageField.setEnabled(false);
+                ageField.setText("");
+                genderField.setEnabled(false);
+                genderField.setText("");
+            } else {
+                specialisationField.setEnabled(false);
+                specialisationField.setText("");
+                bloodGroupField.setEnabled(true);
+                ageField.setEnabled(true);
+                genderField.setEnabled(true);
+            }
+        });
+        
+        // Initial state
+        specialisationField.setEnabled(false);
 
         JButton signupBtn = new JButton("Sign Up");
         signupBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -136,6 +168,18 @@ public class SignupPage extends JPanel {
                 newPatient.setPassword(encodedHash);
                 newPatient.setRole("patient");
                 newPatient.setBloodGroup(bg);
+                
+                try {
+                    if (!ageField.getText().trim().isEmpty()) {
+                        newPatient.setAge(Integer.parseInt(ageField.getText().trim()));
+                    }
+                } catch (NumberFormatException nfe) {
+                    System.out.println("Invalid age format");
+                }
+                
+                if (!genderField.getText().trim().isEmpty()) {
+                    newPatient.setGender(genderField.getText().trim().toUpperCase().charAt(0));
+                }
 
                 PatientRepo prRepo = context.getBean(PatientRepo.class);
                 newPatient = prRepo.save(newPatient);

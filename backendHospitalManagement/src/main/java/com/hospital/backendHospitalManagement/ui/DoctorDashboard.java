@@ -5,9 +5,12 @@ import com.hospital.backendHospitalManagement.model.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,9 +113,6 @@ public class DoctorDashboard extends JPanel {
                 return false;
             }
         };
-
-        dashboardContent.add(Box.createVerticalStrut(40)); // Added extra vertical space manually requested by user
-
         JPanel appointmentsSection = createDataTableSection("Assigned Appointments (Double click to manage)", appointmentTableModel);
         dashboardContent.add(appointmentsSection);
 
@@ -146,6 +146,7 @@ public class DoctorDashboard extends JPanel {
         appointmentTable.setShowGrid(true);
         appointmentTable.setGridColor(new Color(230, 230, 230));
         appointmentTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         // Add double click listener
         appointmentTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -213,7 +214,7 @@ public class DoctorDashboard extends JPanel {
                     String type = appt.getTypeOfAppointment();
                     JTextField serviceField = new JTextField(type != null ? type : "Consultation");
                     billPanel.add(serviceField);
-                    billPanel.add(new JLabel("Amount (\u20B9):"));
+                    billPanel.add(new JLabel("Amount (₹):"));
                     JTextField amountField = new JTextField("699.00");
                     billPanel.add(amountField);
                     
@@ -243,7 +244,108 @@ public class DoctorDashboard extends JPanel {
             }
         });
         
-        p.add(saveBtn, BorderLayout.SOUTH);
+        JButton addMedicalRecordBtn = new JButton("Add Medical Record");
+        addMedicalRecordBtn.setBackground(new Color(40, 167, 69)); // Success green
+        addMedicalRecordBtn.setForeground(Color.WHITE);
+        addMedicalRecordBtn.setFocusPainted(false);
+        addMedicalRecordBtn.addActionListener(e -> {
+            generateMedicalRecordDialog(appt, dialog);
+        });
+
+        JPanel bottomButtons = new JPanel(new GridLayout(1, 2, 10, 0));
+        bottomButtons.add(addMedicalRecordBtn);
+        bottomButtons.add(saveBtn);
+        p.add(bottomButtons, BorderLayout.SOUTH);
+        
+        dialog.add(p);
+        dialog.setVisible(true);
+    }
+    
+    private void generateMedicalRecordDialog(Appointment appt, JDialog parent) {
+        JDialog dialog = new JDialog(parent, "Generate Medical Record", true);
+        dialog.setSize(400, 350);
+        dialog.setLocationRelativeTo(parent);
+        
+        JPanel p = new JPanel(new BorderLayout(10, 10));
+        p.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel form = new JPanel(new GridLayout(4, 2, 5, 10));
+        
+        form.add(new JLabel("Document Name:"));
+        JTextField nameField = new JTextField();
+        form.add(nameField);
+        
+        form.add(new JLabel("Category:"));
+        JComboBox<String> categoryCombo = new JComboBox<>(new String[]{"Consultation Note", "Lab Test", "Radiology", "Prescription", "Discharge Summary"});
+        form.add(categoryCombo);
+
+        form.add(new JLabel("Attachment (PDF):"));
+        JPanel attachPanel = new JPanel(new BorderLayout(5, 5));
+        JButton attachBtn = new JButton("Choose File...");
+        JLabel attachStatus = new JLabel("None");
+        attachStatus.setPreferredSize(new Dimension(80, 20));
+        attachPanel.add(attachBtn, BorderLayout.CENTER);
+        attachPanel.add(attachStatus, BorderLayout.EAST);
+        form.add(attachPanel);
+
+        p.add(form, BorderLayout.NORTH);
+
+        JPanel notesPanel = new JPanel(new BorderLayout(5, 5));
+        notesPanel.add(new JLabel("Notes/Summary:"), BorderLayout.NORTH);
+        JTextArea notesArea = new JTextArea();
+        notesArea.setLineWrap(true);
+        notesArea.setWrapStyleWord(true);
+        notesArea.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        notesPanel.add(new JScrollPane(notesArea), BorderLayout.CENTER);
+        
+        p.add(notesPanel, BorderLayout.CENTER);
+        
+        final byte[][] finalFileBytes = {null};
+        final String[] finalFileName = {null};
+
+        attachBtn.addActionListener(ev -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileFilter(new FileNameExtensionFilter("PDF Documents", "pdf"));
+            if (chooser.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                try {
+                    finalFileBytes[0] = Files.readAllBytes(file.toPath());
+                    finalFileName[0] = file.getName();
+                    attachStatus.setText(" ..." + file.getName().substring(Math.max(0, file.getName().length() - 10)));
+                    attachStatus.setToolTipText(file.getName());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(dialog, "Could not read file", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
+        JButton createBtn = new JButton("Create Record");
+        createBtn.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
+        createBtn.setForeground(Color.WHITE);
+        createBtn.addActionListener(ev -> {
+            try {
+                MedicalRecord record = new MedicalRecord(
+                    appt.getAppointmentId(),
+                    appt.getPatientId(),
+                    appt.getDoctorId(),
+                    nameField.getText(),
+                    (String) categoryCombo.getSelectedItem(),
+                    java.time.LocalDate.now().toString(),
+                    notesArea.getText(),
+                    finalFileBytes[0],
+                    finalFileName[0]
+                );
+                context.getBean(MedicalRecordRepo.class).save(record);
+                JOptionPane.showMessageDialog(dialog, "Medical record created successfully!");
+                dialog.dispose();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(dialog, "Error creating record: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        p.add(createBtn, BorderLayout.SOUTH);
+        
         dialog.add(p);
         dialog.setVisible(true);
     }
