@@ -13,11 +13,10 @@ public class PromethiusFrame extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
 
-    // Store the logged-in user's ID so that pages like PatientDashboard know who is active
     private Long loggedInUserId;
 
     public static final Color STAR_COMMAND_BLUE = new Color(0, 123, 184);
-    public static final Color CYAN = new Color(0, 191, 255); // Deep Sky Blue / Cyan hybrid
+    public static final Color CYAN = new Color(0, 191, 255);
     public static final Color APOLLO_BLUE = new Color(0, 0, 255);
     public static final Color BEIGE = new Color(245, 245, 245);
     public static final Color PURE_BLACK = Color.BLACK;
@@ -63,7 +62,6 @@ public class PromethiusFrame extends JFrame {
         setSize(1200, 800);
         setLocationRelativeTo(null);
 
-        // Define Pages (Placeholder panels for now)
         mainPanel.add(new LandingPage(this), "LANDING");
         mainPanel.add(new LoginPage(this, context), "LOGIN");
         mainPanel.add(new SignupPage(this, context), "SIGNUP");
@@ -72,13 +70,11 @@ public class PromethiusFrame extends JFrame {
         mainPanel.add(new DoctorListView(this, context), "DOCTOR_SEARCH");
         mainPanel.add(new DoctorBookingPage(this, context), "PATIENT_DOCTOR_PROFILE");
         mainPanel.add(new DoctorListingPage(this, context), "PATIENT_BOOKING_LIST");
-        
-        // New Feature Pages
+
         mainPanel.add(new InsurancePage(this), "PATIENT_INSURANCE");
         mainPanel.add(new EmergencyPage(this), "EMERGENCY_SUPPORT");
         mainPanel.add(new LabTestsPage(this), "LAB_TESTS");
 
-        // Doctor Specific Pages
         mainPanel.add(new DoctorRoundsPage(this), "DOCTOR_ROUNDS");
         mainPanel.add(new DoctorPatientRecordsPage(this), "DOCTOR_PATIENT_RECORDS");
         mainPanel.add(new DoctorLabResultsPage(this), "DOCTOR_LAB_RESULTS");
@@ -170,7 +166,6 @@ public class PromethiusFrame extends JFrame {
     public void setCurrentSelectedDoctorId(Long doctorId) { this.currentSelectedDoctorId = doctorId; }
 
     public void showDoctorSpecialty(String specialty) {
-        // Find the DoctorListView component and filter it
         for (Component comp : mainPanel.getComponents()) {
             if (comp instanceof DoctorListView) {
                 ((DoctorListView) comp).filterBySpecialty(specialty);
