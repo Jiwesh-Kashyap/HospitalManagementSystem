@@ -1,4 +1,4 @@
-package com.hospital.backendHospitalManagement.ui;
+package com.hospital.backendHospitalManagement.ui; 
 
 import javax.swing.*;
 import java.awt.*;
