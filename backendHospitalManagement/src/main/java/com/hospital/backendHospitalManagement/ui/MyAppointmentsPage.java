@@ -6,7 +6,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-
+ 
 public class MyAppointmentsPage extends JPanel {
     private final PromethiusFrame frame;
     private final DefaultTableModel tableModel;
