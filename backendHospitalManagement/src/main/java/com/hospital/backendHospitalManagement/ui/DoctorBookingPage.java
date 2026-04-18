@@ -131,9 +131,12 @@ public class DoctorBookingPage extends JPanel {
         dayPanel.setLayout(new BoxLayout(dayPanel, BoxLayout.Y_AXIS));
         dayPanel.setOpaque(false);
         
-        String[] fullDays = {"Monday, Apr 13", "Tuesday, Apr 14", "Wednesday, Apr 15", "Thursday, Apr 16", "Friday, Apr 17", "Saturday, Apr 18"};
-        for (int i = 0; i < fullDays.length; i++) {
-            String day = fullDays[i];
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("EEEE, MMM d");
+
+        for (int i = 0; i < 7; i++) {
+            java.time.LocalDate date = today.plusDays(i);
+            String day = date.format(formatter);
             JButton dBtn = new JButton(day);
             dBtn.setFocusPainted(false);
             dBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
