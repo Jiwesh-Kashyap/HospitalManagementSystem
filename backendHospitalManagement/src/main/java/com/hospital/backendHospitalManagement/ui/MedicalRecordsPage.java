@@ -2,7 +2,6 @@ package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
 import com.hospital.backendHospitalManagement.model.*;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -19,16 +18,19 @@ public class MedicalRecordsPage extends JPanel {
         this.frame = frame;
         this.context = context;
         setLayout(new BorderLayout());
-        setBackground(PromethiusFrame.PURE_WHITE);
+        setBackground(PromethiusFrame.BEIGE);
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         header.setPreferredSize(new Dimension(1200, 60));
         
-        JButton backBtn = new JButton("◀ Back");
+        JButton backBtn = new JButton("◀ Back to Dashboard");
         backBtn.setForeground(Color.WHITE);
         backBtn.setContentAreaFilled(false);
-        backBtn.addActionListener(e -> frame.showPage("PATIENT_DASHBOARD"));
+        backBtn.addActionListener(e -> {
+            if (frame.isDoctorLoggedIn()) frame.showPage("DOCTOR_DASHBOARD");
+            else frame.showPage("PATIENT_DASHBOARD");
+        });
         header.add(backBtn, BorderLayout.WEST);
         
         JLabel title = new JLabel("Digital Health Records", SwingConstants.CENTER);
@@ -41,6 +43,7 @@ public class MedicalRecordsPage extends JPanel {
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         
+        // Merged headers: Record ID, Type/Category, Date, Notes, Attachment
         String[] headers = {"Record ID", "Document Name", "Category", "Date", "Notes", "Attachment"};
         Object[][] data = loadMedicalRecords();
         recordsTableModel = new DefaultTableModel(data, headers) {
@@ -120,7 +123,7 @@ public class MedicalRecordsPage extends JPanel {
             
             List<MedicalRecord> records = recordRepo.findByPatientId(patientId);
             if (records == null || records.isEmpty()) {
-                return new Object[][]{{"-", "No records found", "-", "-", "-"}};
+                return new Object[][]{{"-", "No records found", "-", "-", "-", "-"}};
             }
             
             Object[][] data = new Object[records.size()][6];
@@ -146,3 +149,4 @@ public class MedicalRecordsPage extends JPanel {
         }
     }
 }
+

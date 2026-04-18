@@ -100,10 +100,16 @@ public class PromethiusFrame extends JFrame {
                 ((DoctorDashboard) comp).refreshData(context);
             } else if ("PATIENT_DOCTOR_PROFILE".equals(pageName) && comp instanceof DoctorBookingPage) {
                 ((DoctorBookingPage) comp).refreshData(context);
+            } else if ("PATIENT_PROFILE".equals(pageName) && comp instanceof ProfilePage) {
+                ((ProfilePage) comp).refreshData(context);
+            } else if ("PATIENT_APPOINTMENTS".equals(pageName) && comp instanceof MyAppointmentsPage) {
+                ((MyAppointmentsPage) comp).refreshData(context);
             } else if ("PATIENT_RECORDS".equals(pageName) && comp instanceof MedicalRecordsPage) {
                 ((MedicalRecordsPage) comp).refreshData();
             } else if ("PATIENT_BILLING".equals(pageName) && comp instanceof BillingPage) {
                 ((BillingPage) comp).refreshData();
+            }
+
             }
         }
         cardLayout.show(mainPanel, pageName);

@@ -11,6 +11,7 @@ public class SignupPage extends JPanel {
     private final PromethiusFrame frame;
     private final ApplicationContext context;
     private final JTextField nameField, emailField, bloodGroupField, specialisationField, ageField, genderField;
+    private final JLabel bloodLabel, specLabel, ageLabel, genderLabel;
     private final JPasswordField passwordField;
     private final JComboBox<String> roleCombo;
 
@@ -68,47 +69,32 @@ public class SignupPage extends JPanel {
         form.add(roleCombo);
         form.add(Box.createVerticalStrut(10));
         
-        form.add(createLabel("Age (Patients Only):"));
+        ageLabel = createLabel("Age (Patients Only):");
+        form.add(ageLabel);
         ageField = new JTextField();
         form.add(ageField);
         form.add(Box.createVerticalStrut(10));
         
-        form.add(createLabel("Gender (M/F) (Patients Only):"));
+        genderLabel = createLabel("Gender (M/F) (Patients Only):");
+        form.add(genderLabel);
         genderField = new JTextField();
         form.add(genderField);
         form.add(Box.createVerticalStrut(10));
 
-        form.add(createLabel("Blood Group:"));
+        bloodLabel = createLabel("Blood Group:");
+        form.add(bloodLabel);
         bloodGroupField = new JTextField();
         form.add(bloodGroupField);
         form.add(Box.createVerticalStrut(10));
 
-        form.add(createLabel("Specialisation (For Doctors):"));
+        specLabel = createLabel("Specialisation (For Doctors):");
+        form.add(specLabel);
         specialisationField = new JTextField();
         form.add(specialisationField);
         form.add(Box.createVerticalStrut(20));
         
-        roleCombo.addActionListener(e -> {
-            String role = (String) roleCombo.getSelectedItem();
-            if ("DOCTOR".equals(role)) {
-                specialisationField.setEnabled(true);
-                bloodGroupField.setEnabled(false);
-                bloodGroupField.setText("");
-                ageField.setEnabled(false);
-                ageField.setText("");
-                genderField.setEnabled(false);
-                genderField.setText("");
-            } else {
-                specialisationField.setEnabled(false);
-                specialisationField.setText("");
-                bloodGroupField.setEnabled(true);
-                ageField.setEnabled(true);
-                genderField.setEnabled(true);
-            }
-        });
-        
-        // Initial state
-        specialisationField.setEnabled(false);
+        roleCombo.addActionListener(e -> updateFieldVisibility());
+        updateFieldVisibility(); // Initial trigger
 
         JButton signupBtn = new JButton("Sign Up");
         signupBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -127,6 +113,26 @@ public class SignupPage extends JPanel {
 
         container.add(form);
         add(container, BorderLayout.CENTER);
+    }
+
+    private void updateFieldVisibility() {
+        String role = (String) roleCombo.getSelectedItem();
+        boolean isDoctor = "DOCTOR".equals(role);
+        
+        // Hide blood group as per user preference
+        bloodLabel.setVisible(false);
+        bloodGroupField.setVisible(false);
+        
+        specLabel.setVisible(isDoctor);
+        specialisationField.setVisible(isDoctor);
+        
+        ageLabel.setVisible(!isDoctor);
+        ageField.setVisible(!isDoctor);
+        genderLabel.setVisible(!isDoctor);
+        genderField.setVisible(!isDoctor);
+        
+        revalidate();
+        repaint();
     }
 
     private JLabel createLabel(String text) {

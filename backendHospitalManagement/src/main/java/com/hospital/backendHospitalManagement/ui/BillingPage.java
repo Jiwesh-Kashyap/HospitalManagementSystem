@@ -2,7 +2,6 @@ package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
 import com.hospital.backendHospitalManagement.model.*;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -17,7 +16,7 @@ public class BillingPage extends JPanel {
         this.frame = frame;
         this.context = context;
         setLayout(new BorderLayout());
-        setBackground(PromethiusFrame.PURE_WHITE);
+        setBackground(PromethiusFrame.BEIGE);
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
@@ -29,7 +28,7 @@ public class BillingPage extends JPanel {
         backBtn.addActionListener(e -> frame.showPage("PATIENT_DASHBOARD"));
         header.add(backBtn, BorderLayout.WEST);
         
-        JLabel title = new JLabel("Billing & Invoices", SwingConstants.CENTER);
+        JLabel title = new JLabel("Invoice & Billing History", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
         header.add(title, BorderLayout.CENTER);
@@ -39,7 +38,7 @@ public class BillingPage extends JPanel {
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         
-        String[] headers = {"Invoice #", "Service Delivered", "Date", "Amount"};
+        String[] headers = {"Invoice #", "Service Delivered", "Date", "Amount", "Status"};
         Object[][] data = loadBills();
         billingTableModel = new DefaultTableModel(data, headers) {
             @Override
@@ -72,27 +71,29 @@ public class BillingPage extends JPanel {
             
             List<Bill> bills = billRepo.findByPatientId(patientId);
             if (bills == null || bills.isEmpty()) {
-                return new Object[][]{{"No invoices found", "-", "-", "-"}};
+                return new Object[][]{{"No invoices found", "-", "-", "-", "-"}};
             }
             
-            Object[][] data = new Object[bills.size()][4];
+            Object[][] data = new Object[bills.size()][5];
             for (int i = 0; i < bills.size(); i++) {
                 Bill b = bills.get(i);
                 data[i][0] = b.getInvoiceNumber();
-                data[i][1] = b.getService();
+                data[i][1] = b.getService() != null ? b.getService() : "Consultation";
                 data[i][2] = b.getDate() != null ? b.getDate() : "N/A";
                 data[i][3] = "₹" + String.format("%.2f", b.getAmount() != null ? b.getAmount() : 0.0);
+                data[i][4] = "Paid"; // Defaulting to Paid as per user's logic
             }
             return data;
         } catch (Exception e) {
             e.printStackTrace();
-            return new Object[][]{{"Error loading bills", "-", "-", "-"}};
+            return new Object[][]{{"Error loading bills", "-", "-", "-", "-"}};
         }
     }
     
     public void refreshData() {
         if (billingTableModel != null) {
-            billingTableModel.setDataVector(loadBills(), new String[]{"Invoice #", "Service Delivered", "Date", "Amount"});
+            billingTableModel.setDataVector(loadBills(), new String[]{"Invoice #", "Service Delivered", "Date", "Amount", "Status"});
         }
     }
 }
+
