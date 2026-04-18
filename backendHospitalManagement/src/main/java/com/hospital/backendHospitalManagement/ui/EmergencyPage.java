@@ -10,7 +10,7 @@ public class EmergencyPage extends JPanel {
         setBackground(PromethiusFrame.PURE_WHITE);
 
         // Header
-        JPanel header = new JPanel(new BorderLayout());
+        JPanel header = new JPanel(new BorderLayout()); 
         header.setBackground(new Color(200, 0, 0)); // Red for Emergency
         header.setPreferredSize(new Dimension(1200, 70));
 
