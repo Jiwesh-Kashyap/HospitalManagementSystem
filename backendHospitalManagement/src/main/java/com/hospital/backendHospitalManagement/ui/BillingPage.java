@@ -47,14 +47,7 @@ public class BillingPage extends JPanel {
             }
         };
 
-        JTable table = new JTable(billingTableModel);
-        table.setRowHeight(40);
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
-        table.setFont(new Font("SansSerif", Font.PLAIN, 15));
-        table.setFillsViewportHeight(true);
-        table.setShowGrid(true);
-        table.setGridColor(new Color(230, 230, 230));
-        table.setAutoCreateRowSorter(true);
+
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
