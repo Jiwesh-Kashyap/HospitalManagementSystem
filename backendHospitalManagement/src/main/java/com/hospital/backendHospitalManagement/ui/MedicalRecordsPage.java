@@ -42,8 +42,7 @@ public class MedicalRecordsPage extends JPanel {
         JPanel content = new JPanel(new BorderLayout());
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
-        
-        // Merged headers: Record ID, Type/Category, Date, Notes, Attachment
+
         String[] headers = {"Record ID", "Document Name", "Category", "Date", "Notes", "Attachment"};
         Object[][] data = loadMedicalRecords();
         recordsTableModel = new DefaultTableModel(data, headers) {
