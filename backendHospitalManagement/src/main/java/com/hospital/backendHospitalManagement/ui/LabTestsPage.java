@@ -9,7 +9,6 @@ public class LabTestsPage extends JPanel {
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 
-        // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         header.setPreferredSize(new Dimension(1200, 70));
@@ -28,7 +27,6 @@ public class LabTestsPage extends JPanel {
         header.add(title, BorderLayout.CENTER);
         add(header, BorderLayout.NORTH);
 
-        // Content
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(PromethiusFrame.PURE_WHITE);
@@ -54,12 +52,10 @@ public class LabTestsPage extends JPanel {
         ));
         card.setMaximumSize(new Dimension(1000, 130));
 
-        // Icon
         JLabel iconLbl = new JLabel(icon);
         iconLbl.setFont(new Font("SansSerif", Font.PLAIN, 50));
         card.add(iconLbl, BorderLayout.WEST);
 
-        // Info
         JPanel info = new JPanel();
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
         info.setOpaque(false);
@@ -83,7 +79,6 @@ public class LabTestsPage extends JPanel {
         info.add(Box.createVerticalGlue());
         card.add(info, BorderLayout.CENTER);
 
-        // Price & Action
         JPanel action = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 25));
         action.setOpaque(false);
         
