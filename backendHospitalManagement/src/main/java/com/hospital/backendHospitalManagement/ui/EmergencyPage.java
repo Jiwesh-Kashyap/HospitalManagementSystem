@@ -9,9 +9,8 @@ public class EmergencyPage extends JPanel {
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 
-        // Header
         JPanel header = new JPanel(new BorderLayout()); 
-        header.setBackground(new Color(200, 0, 0)); // Red for Emergency
+        header.setBackground(new Color(200, 0, 0)); 
         header.setPreferredSize(new Dimension(1200, 70));
 
         JButton backBtn = new JButton("◀ Home");
@@ -28,13 +27,11 @@ public class EmergencyPage extends JPanel {
         header.add(title, BorderLayout.CENTER);
         add(header, BorderLayout.NORTH);
 
-        // Content
         JPanel content = new JPanel(new GridBagLayout());
         content.setBackground(PromethiusFrame.PURE_WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(20, 20, 20, 20);
 
-        // Emergency Button
         JButton callBtn = new JButton("🚑 CALL EMERGENCY NOW");
         callBtn.setFont(new Font("SansSerif", Font.BOLD, 36));
         callBtn.setBackground(new Color(220, 0, 0));
@@ -47,7 +44,6 @@ public class EmergencyPage extends JPanel {
         gbc.gridy = 0;
         content.add(callBtn, gbc);
 
-        // Info Panel
         JPanel info = new JPanel(new GridLayout(4, 1, 10, 10));
         info.setOpaque(false);
         info.add(createEmergencyContact("Ambulance Service", "102 / 108"));
