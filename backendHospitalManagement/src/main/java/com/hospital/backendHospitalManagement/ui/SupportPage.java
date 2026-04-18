@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class SupportPage extends JPanel {
     public SupportPage(PromethiusFrame frame) {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout()); 
         setBackground(PromethiusFrame.PURE_WHITE);
 
         JPanel header = new JPanel(new BorderLayout());
