@@ -34,6 +34,15 @@ public class BillingPage extends JPanel {
         header.add(title, BorderLayout.CENTER);
         add(header, BorderLayout.NORTH);
 
+        JTable table = new JTable(billingTableModel);
+        table.setRowHeight(40);
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
+        table.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        table.setFillsViewportHeight(true);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setAutoCreateRowSorter(true);
+
         JPanel content = new JPanel(new BorderLayout());
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
