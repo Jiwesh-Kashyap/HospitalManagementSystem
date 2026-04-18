@@ -7,7 +7,7 @@ import com.hospital.backendHospitalManagement.model.*;
 import javax.swing.*;
 import java.awt.*;
 
-public class SignupPage extends JPanel {
+public class SignupPage extends JPanel { 
     private final PromethiusFrame frame;
     private final ApplicationContext context;
     private final JTextField nameField, emailField, bloodGroupField, specialisationField, ageField, genderField;
