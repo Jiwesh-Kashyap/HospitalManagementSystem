@@ -34,7 +34,7 @@ public class DoctorListView extends JPanel {
         titleLabel.setForeground(Color.WHITE);
         header.add(titleLabel, BorderLayout.CENTER);
         
-        add(header, BorderLayout.NORTH);
+        add(header, BorderLayout.NORTH); 
 
         // Filter / Search Bar (Turquoise)
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
