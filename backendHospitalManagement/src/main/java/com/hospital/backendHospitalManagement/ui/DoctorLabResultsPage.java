@@ -27,7 +27,7 @@ public class DoctorLabResultsPage extends JPanel {
         dashBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
         dashBtn.setContentAreaFilled(false);
         dashBtn.addActionListener(e -> frame.showPage("DOCTOR_DASHBOARD"));
-        navBox.add(dashBtn);
+        navBox.add(dashBtn); 
 
         header.add(navBox, BorderLayout.WEST);
         
