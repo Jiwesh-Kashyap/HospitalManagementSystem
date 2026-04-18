@@ -1,7 +1,6 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import org.springframework.context.ApplicationContext;
-import com.hospital.backendHospitalManagement.model.*;
 import javax.swing.*;
 import java.awt.*;
 

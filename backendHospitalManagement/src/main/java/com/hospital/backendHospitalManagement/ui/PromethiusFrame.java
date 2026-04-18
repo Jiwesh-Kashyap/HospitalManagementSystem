@@ -109,11 +109,10 @@ public class PromethiusFrame extends JFrame {
             } else if ("PATIENT_BILLING".equals(pageName) && comp instanceof BillingPage) {
                 ((BillingPage) comp).refreshData();
             }
-
-            }
         }
         cardLayout.show(mainPanel, pageName);
     }
+
 
     public void setLoggedInUserId(Long id) {
         this.loggedInUserId = id;

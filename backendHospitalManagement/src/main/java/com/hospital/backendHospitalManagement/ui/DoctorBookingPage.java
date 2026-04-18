@@ -60,15 +60,30 @@ public class DoctorBookingPage extends JPanel {
         exp.setFont(new Font("SansSerif", Font.BOLD, 16));
         exp.setForeground(PromethiusFrame.APOLLO_BLUE);
 
-        profile.add(nameLbl);
-        profile.add(specLbl);
-        profile.add(exp);
-        profile.add(Box.createVerticalStrut(20));
-        profile.add(new JLabel("Qualifications: MBBS, MD (General Medicine)"));
-        profile.add(new JLabel("Languages: English, Kannada, Hindi"));
-        profile.add(Box.createVerticalStrut(20));
-        profile.add(new JLabel("📍 Apollo 24|7 Clinic - Bangalore"));
+        JPanel headerBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        headerBox.setOpaque(false);
+
+        JLabel iconLbl = new JLabel("👤 ");
+        iconLbl.setFont(new Font("SansSerif", Font.PLAIN, 100)); // Slightly larger to cover more height
+        iconLbl.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
+        headerBox.add(iconLbl);
+
+        JPanel infoBox = new JPanel();
+        infoBox.setLayout(new BoxLayout(infoBox, BoxLayout.Y_AXIS));
+        infoBox.setOpaque(false);
+        infoBox.add(nameLbl);
+        infoBox.add(specLbl);
+        infoBox.add(exp);
+        infoBox.add(Box.createVerticalStrut(20));
+        infoBox.add(new JLabel("Qualifications: MBBS, MD (General Medicine)"));
+        infoBox.add(new JLabel("Languages: English, Kannada, Hindi"));
+        infoBox.add(Box.createVerticalStrut(20));
+        infoBox.add(new JLabel("📍 Apollo 24|7 Clinic - Bangalore"));
+        headerBox.add(infoBox);
+
+        profile.add(headerBox);
         profile.add(Box.createVerticalStrut(30));
+
 
         JLabel bioHeader = new JLabel("Professional Biography");
         bioHeader.setFont(new Font("SansSerif", Font.BOLD, 18));

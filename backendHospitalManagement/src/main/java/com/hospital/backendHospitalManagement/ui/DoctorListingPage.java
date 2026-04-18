@@ -5,8 +5,6 @@ import com.hospital.backendHospitalManagement.model.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class DoctorListingPage extends JPanel {
     private final PromethiusFrame frame;

@@ -4,10 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class InsurancePage extends JPanel {
-    private final PromethiusFrame frame;
 
     public InsurancePage(PromethiusFrame frame) {
-        this.frame = frame;
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 

@@ -314,10 +314,6 @@ public class PatientDashboard extends JPanel {
         return card;
     }
 
-    private JPanel createDataSection(String title, String[] headers, Object[][] data) {
-        DefaultTableModel model = new DefaultTableModel(data, headers);
-        return createDataSectionFromModel(title, model);
-    }
     
     private JPanel createDataSectionFromModel(String title, DefaultTableModel model) {
         JPanel section = new JPanel(new BorderLayout());

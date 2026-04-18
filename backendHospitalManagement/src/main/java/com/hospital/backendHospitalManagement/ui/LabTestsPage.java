@@ -4,10 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LabTestsPage extends JPanel {
-    private final PromethiusFrame frame;
 
     public LabTestsPage(PromethiusFrame frame) {
-        this.frame = frame;
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 
