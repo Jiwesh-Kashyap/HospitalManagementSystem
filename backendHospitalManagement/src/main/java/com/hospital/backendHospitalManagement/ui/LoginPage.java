@@ -21,7 +21,6 @@ public class LoginPage extends JPanel {
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.BEIGE);
 
-        // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         JButton backBtn = new JButton("<- Back to Home");
@@ -31,7 +30,6 @@ public class LoginPage extends JPanel {
         header.add(backBtn, BorderLayout.WEST);
         add(header, BorderLayout.NORTH);
 
-        // Form
         JPanel container = new JPanel(new GridBagLayout());
         container.setOpaque(false);
         
@@ -125,11 +123,9 @@ public class LoginPage extends JPanel {
             Person person = personOpt.get();
 
             boolean matches = false;
-            // First check if it matches BCrypt
             if (passwordEncoder.matches(password, person.getPassword())) {
                 matches = true;
             } else if (password.equals(person.getPassword())) {
-                // Fallback for plain-text passwords during testing
                 matches = true;
             }
 
