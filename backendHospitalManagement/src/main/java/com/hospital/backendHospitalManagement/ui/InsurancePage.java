@@ -9,7 +9,6 @@ public class InsurancePage extends JPanel {
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 
-        // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         header.setPreferredSize(new Dimension(1200, 70));
@@ -28,7 +27,6 @@ public class InsurancePage extends JPanel {
         header.add(title, BorderLayout.CENTER);
         add(header, BorderLayout.NORTH);
 
-        // Content
         JPanel content = new JPanel(new GridLayout(1, 3, 30, 0));
         content.setBackground(PromethiusFrame.PURE_WHITE);
         content.setBorder(BorderFactory.createEmptyBorder(50, 60, 50, 60));
