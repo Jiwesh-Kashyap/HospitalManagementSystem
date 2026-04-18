@@ -257,20 +257,4 @@ public class DoctorBookingPage extends JPanel {
         }
     }
 
-    public void refreshData(ApplicationContext context) {
-        try {
-            Long docId = frame.getCurrentSelectedDoctorId();
-            if (docId != null) {
-                DoctorRepo docRepo = context.getBean(DoctorRepo.class);
-                java.util.Optional<Doctor> dOpt = docRepo.findById(docId);
-                if (dOpt.isPresent()) {
-                    Doctor doc = dOpt.get();
-                    nameLbl.setText(doc.getName().startsWith("Dr.") ? doc.getName() : "Dr. " + doc.getName());
-                    specLbl.setText(doc.getSpecialisation() != null ? doc.getSpecialisation() : "General Physician");
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-}
+    
