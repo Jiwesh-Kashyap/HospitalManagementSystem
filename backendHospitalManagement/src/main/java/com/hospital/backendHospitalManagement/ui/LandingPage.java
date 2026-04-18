@@ -14,19 +14,16 @@ public class LandingPage extends JPanel {
         setLayout(new BorderLayout());
         setBackground(PromethiusFrame.PURE_WHITE);
 
-        // --- Tier 1: Top Header (Deep Green) ---
         JPanel topHeader = new JPanel(new BorderLayout());
         topHeader.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         topHeader.setPreferredSize(new Dimension(1200, 80));
         topHeader.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 50));
 
-        // Logo
         JLabel logo = new JLabel("Promethius+");
         logo.setFont(new Font("SansSerif", Font.BOLD, 32));
         logo.setForeground(PromethiusFrame.CYAN);
         topHeader.add(logo, BorderLayout.WEST);
 
-        // Global Search (Vibrant Turquoise accents)
         JPanel searchPane = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchPane.setOpaque(false);
         JTextField searchField = new JTextField("Search for doctors, specialists, or conditions...", 35);
@@ -36,13 +33,11 @@ public class LandingPage extends JPanel {
         searchPane.add(searchField);
         topHeader.add(searchPane, BorderLayout.CENTER);
 
-        // Login / Signup (Blue Accents)
         authBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
         authBtns.setOpaque(false);
         refreshLoginState();
         topHeader.add(authBtns, BorderLayout.EAST);
 
-        // --- Tier 2: Main Nav Bar (Black/White Contrast) ---
         JPanel mainNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 15));
         mainNav.setBackground(PromethiusFrame.PURE_WHITE);
         String[] navItems = {"Find Doctors", "Lab Tests", "Circle Membership", "Health Records", "Buy Insurance"};
@@ -64,7 +59,6 @@ public class LandingPage extends JPanel {
             mainNav.add(label);
         }
 
-        // --- Tier 3: Specialty Bar (Deep Green) ---
         JPanel specNav = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 8));
         specNav.setBackground(PromethiusFrame.STAR_COMMAND_BLUE);
         String[] specs = {"Cardiology", "Neurology", "Orthopedics", "Pediatrics", "Dermatology", "Oncology"};
@@ -91,12 +85,10 @@ public class LandingPage extends JPanel {
         headerStack.add(specNav);
         add(headerStack, BorderLayout.NORTH);
 
-        // --- Main Content (Vibrant & High Performance) ---
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(PromethiusFrame.PURE_WHITE);
 
-        // Hero Section
         JPanel hero = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -126,7 +118,6 @@ public class LandingPage extends JPanel {
         hero.setMaximumSize(new Dimension(2000, 350));
         content.add(hero);
 
-        // Quick Actions
         JPanel quickActions = new JPanel(new GridLayout(1, 4, 30, 0));
         quickActions.setBackground(PromethiusFrame.PURE_WHITE);
         quickActions.setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
@@ -136,7 +127,6 @@ public class LandingPage extends JPanel {
         quickActions.add(createActionCard("Emergency", "CALL NOW", "🚑", Color.RED, "EMERGENCY_SUPPORT"));
         content.add(quickActions);
 
-        // Healthcare Grid Section
         JLabel gridHeader = new JLabel("Browse by Healthcare Section");
         gridHeader.setFont(new Font("SansSerif", Font.BOLD, 32));
         gridHeader.setForeground(PromethiusFrame.STAR_COMMAND_BLUE);
@@ -156,10 +146,9 @@ public class LandingPage extends JPanel {
         }
         content.add(conditionGrid);
 
-        // Fix Scroll Performance
         JScrollPane scrollPane = new JScrollPane(content);
         scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(28); // Vibrant, fast scrolling
+        scrollPane.getVerticalScrollBar().setUnitIncrement(28);
         add(scrollPane, BorderLayout.CENTER);
     }
 
