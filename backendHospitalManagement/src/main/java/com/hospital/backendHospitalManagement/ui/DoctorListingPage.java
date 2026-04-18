@@ -9,7 +9,7 @@ import java.awt.*;
 public class DoctorListingPage extends JPanel {
     private final PromethiusFrame frame;
     private final ApplicationContext context;
-    private final JPanel doctorListPanel;
+    private final JPanel doctorListPanel; 
 
     public DoctorListingPage(PromethiusFrame frame, ApplicationContext context) {
         this.frame = frame;
