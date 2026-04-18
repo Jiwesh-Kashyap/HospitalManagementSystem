@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationContext;
 import javax.swing.*;
 import java.awt.*;
 
-public class ProfilePage extends JPanel {
+public class ProfilePage extends JPanel { 
     private final PromethiusFrame frame;
     private final JLabel nameVal, emailVal, roleVal;
 
