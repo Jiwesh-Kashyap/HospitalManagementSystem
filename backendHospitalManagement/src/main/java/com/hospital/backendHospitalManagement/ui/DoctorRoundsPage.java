@@ -1,7 +1,7 @@
 package com.hospital.backendHospitalManagement.ui;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.*; 
 
 public class DoctorRoundsPage extends JPanel {
     public DoctorRoundsPage(PromethiusFrame frame) {
