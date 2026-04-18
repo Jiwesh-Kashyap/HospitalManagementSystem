@@ -200,6 +200,16 @@ public class DoctorBookingPage extends JPanel {
 
     private void finalizeBooking() {
         if (selectedTimeLbl.getText().contains("Selected")) {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to schedule this appointment?", 
+                "Confirm Appointment", 
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.QUESTION_MESSAGE);
+            
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+
             try {
                 AppointmentRepo appRepo = context.getBean(AppointmentRepo.class);
                 

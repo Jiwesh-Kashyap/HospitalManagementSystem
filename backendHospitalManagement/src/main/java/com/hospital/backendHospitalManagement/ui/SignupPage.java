@@ -11,6 +11,7 @@ public class SignupPage extends JPanel {
     private final PromethiusFrame frame;
     private final ApplicationContext context;
     private final JTextField nameField, emailField, bloodGroupField, specialisationField;
+    private final JLabel bloodLabel, specLabel;
     private final JPasswordField passwordField;
     private final JComboBox<String> roleCombo;
 
@@ -68,15 +69,20 @@ public class SignupPage extends JPanel {
         form.add(roleCombo);
         form.add(Box.createVerticalStrut(10));
 
-        form.add(createLabel("Blood Group:"));
+        bloodLabel = createLabel("Blood Group:");
+        form.add(bloodLabel);
         bloodGroupField = new JTextField();
         form.add(bloodGroupField);
         form.add(Box.createVerticalStrut(10));
 
-        form.add(createLabel("Specialisation (For Doctors):"));
+        specLabel = createLabel("Specialisation (For Doctors):");
+        form.add(specLabel);
         specialisationField = new JTextField();
         form.add(specialisationField);
         form.add(Box.createVerticalStrut(20));
+
+        roleCombo.addActionListener(e -> updateFieldVisibility());
+        updateFieldVisibility(); // Initial trigger
 
         JButton signupBtn = new JButton("Sign Up");
         signupBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -95,6 +101,24 @@ public class SignupPage extends JPanel {
 
         container.add(form);
         add(container, BorderLayout.CENTER);
+    }
+
+    private void updateFieldVisibility() {
+        String role = (String) roleCombo.getSelectedItem();
+        boolean isDoctor = "DOCTOR".equals(role);
+        
+        // Hide blood group for both as per user preference (or at least for patients)
+        // User said: "if i sign up as patient i should not need to fill in blood type"
+        // And "if we select patient we need not to fill in the department its useless"
+        
+        bloodLabel.setVisible(false);
+        bloodGroupField.setVisible(false);
+        
+        specLabel.setVisible(isDoctor);
+        specialisationField.setVisible(isDoctor);
+        
+        revalidate();
+        repaint();
     }
 
     private JLabel createLabel(String text) {
